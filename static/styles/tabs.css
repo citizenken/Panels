@@ -1,0 +1,42 @@
+.etabs-tab.just-added {
+  top: 22px;
+  height: 0px !important;
+  animation: tab-just-added 120ms forwards ease-in-out;
+}
+
+.etabs-tab.just-added > * {
+  opacity: 0;
+  animation: show-tab-text 120ms forwards ease-in-out;
+  animation-delay: .05s;
+}
+
+
+@-moz-keyframes tab-just-added {
+  to {
+    top: 0;
+  }
+}
+@-webkit-keyframes tab-just-added {
+  to {
+    top: 0;
+    height: 22px;
+  }
+}
+@-o-keyframes tab-just-added {
+  to {
+    top: 0;
+    height: 22px;    
+  }
+}
+@keyframes tab-just-added {
+  to {
+    top: 0;
+    height: 22px;
+  }
+}
+
+@keyframes show-tab-text {
+  to {
+    opacity: 1;
+  }
+}

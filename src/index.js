@@ -1,8 +1,16 @@
 'use strict';
 const electron = require('electron');
 var path = require('path');
-
+var mainStore = require('./mainStore');
+var actions = require('./state/actions/actions');
+var configService = require('./services/config-service.js');
+var onlineService = require('./services/online-service.js')
 const app = electron.app;
+
+var config = configService.loadConfig(app.getPath('userData'));
+mainStore.dispatch(actions.loadConfig(config))
+
+global.config = config;
 
 // adds debug features like hotkeys for triggering dev tools and reload
 require('electron-debug')();
@@ -22,12 +30,31 @@ function createMainWindow() {
     height: 400
   });
 
-  var url = 'file://' + path.resolve(__dirname, '..', 'static', 'workspace.html')
+  var url = 'file://' + path.resolve(__dirname, '..', 'static', 'main.html')
 
-  // win.webContents.openDevTools();
-  console.log(url)
   win.loadURL(url);
+  win.maximize();
+  win.webContents.openDevTools()
   win.on('closed', onClosed);
+
+  onlineService.nodeCheckInternet()
+  .then(function() {
+    if (config.allowInternet) {
+      var firebaseService = require('./services/firebase-service.js');
+      global.firebaseService = firebaseService;
+      firebaseService.signIn()
+      .then(function (user) {
+        return firebaseService.loadUserFiles(user);
+      })
+      .then(function(files) {
+        mainStore.dispatch(actions.loadDocs(files));
+      });
+    }
+  })
+  .catch(function(error) {
+    console.log('this is an error', error)
+    console.info('No internet access, not loading firebase')
+  });
 
   return win;
 }

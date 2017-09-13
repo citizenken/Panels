@@ -13,6 +13,8 @@
   "scripts": {
     "test": "xo",
     "start": "electron .",
+    "debug": "electron --inspect=5858 .",
+    "debug-brk": "electron --inspect-brk=5858 .",
     "build": "electron-packager . --out=dist --asar --overwrite --all"
   },
   "files": [
@@ -25,15 +27,27 @@
     "electron"
   ],
   "dependencies": {
+    "axios": "^0.16.2",
+    "bluebird": "^3.5.0",
     "codemirror": "^5.28.0",
+    "dragula": "^3.7.2",
     "electron-debug": "^1.0.0",
     "electron-tabs": "^0.7.1",
-    "mithril": "^1.1.3"
+    "firebase": "^4.3.0",
+    "immutable": "^3.8.1",
+    "mithril": "^1.1.3",
+    "node-pre-gyp": "^0.6.36",
+    "randomstring": "^1.1.5",
+    "redux": "^3.7.2",
+    "redux-electron-store": "^0.4.1",
+    "redux-thunk": "^2.2.0",
+    "seamless-immutable": "^7.1.2"
   },
   "devDependencies": {
     "devtron": "^1.1.0",
+    "electron": "^1.7.6",
     "electron-packager": "^8.0.0",
-    "electron": "^1.3.3",
+    "electron-rebuild": "^1.6.0",
     "xo": "^0.16.0"
   },
   "xo": {

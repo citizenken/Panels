@@ -1,26 +1,48 @@
-var m = require("mithril")
-var path = require('path')
-// var Document = require('./document')
+var m = require("mithril");
+var path = require('path');
+var querystring = require('querystring');
+var randomstring = require("randomstring");
 const TabGroup = require("electron-tabs");
+var dragula = require("dragula");
+var rendererStore = require('../rendererStore');
+var actions = require('../state/actions/actions');
+var Immutable = require('seamless-immutable');
 
 module.exports = Tabs = {
   tabGroup: null,
-  oncreate: function(vnode) {
-    console.log("Initialized")
-    this.tabGroup = new TabGroup({newTab: addTab});
-    this.tabGroup.on("tab-added", function(tab, tabGroup) {
-      tab.webview.addEventListener('did-start-loading', function(e) {
-        e.target.openDevTools()
-      });
-      tab.webview.addEventListener('did-stop-loading', function(e) {
-        e.target.style.backgroundColor = null;
-        // e.target.innerText = 'loading...';
-      });
+  tabs: {},
+  oncreate: function({state, attrs, dom}) {
+    var stateData = attrs.stateData;
+    state.tabGroup = new TabGroup({
+      newTab: function() {
+        return addTab(state);
+      },
+      ready: function (tabGroup) {
+        dragula([tabGroup.tabContainer], {
+          direction: "horizontal"
+        });
+      }
     });
+    console.log('this is attrs', attrs);
+
+    openLastDoc(state, stateData)
+    registerTabGroupEvents(state);
   },
-  view: function() {
-    var self = this;
-    return m("div", [
+ onupdate: function({state, attrs, dom}) {
+    var activeTabId = state.tabGroup.getActiveTab(),
+        currentDoc = attrs.stateData.currentDocument
+        tabs = state.tabs;
+
+    if (currentDoc) {
+      if (Object.keys(tabs).indexOf(currentDoc) == -1){
+        addTab(state, currentDoc, attrs.stateData.documents[currentDoc]);
+      }
+    }
+
+    updateTabTitles(state, attrs.stateData);
+  },
+  view: function({state, attrs, dom}) {
+    return m("div", {style: "float:right;width:50%;"}, [
       m(".etabs-tabgroup", [
         m(".etabs-tabs"),
         m(".etabs-buttons"),
@@ -30,24 +52,85 @@ module.exports = Tabs = {
   }
 }
 
+function addTab(state, docId, loadedDoc) {
+  var tabGroup = state.tabGroup,
+      docTitle = 'Untitled';
 
-function addTab(tab) {
-  var url = 'file://' + path.resolve(__dirname, '..', '..', 'static', 'document.html')
-  console.log(url)
-  var tabConfig = {
-      visible: true,
-      active: true,
-      src: url,
-      webviewAttributes: {
-        nodeintegration: true
+  if (!docId){
+    var docId = randomstring.generate(20);
+  }
+
+  if (loadedDoc) {
+    docTitle = loadedDoc.title
+  }
+
+  var queryParams = querystring.stringify({docId: docId, docTitle: docTitle}),
+      url = 'file://' + path.resolve(__dirname, '..', '..', 'static', 'workspace.html');
+      url = url + '?' + queryParams;
+      tabConfig = {
+          visible: true,
+          active: true,
+          src: url,
+          webviewAttributes: {
+            nodeintegration: true
+          },
+          title: docTitle
+      };
+
+  state.tabs[docId] = tabGroup.newTabId;
+
+  if (loadedDoc) {
+    tabGroup.addTab(tabConfig);
+  } else {
+    return tabConfig;
+  }
+}
+
+function openLastDoc(state, stateData) {
+  var currentDoc = stateData.currentDocument;
+  if (currentDoc) {
+    if (Object.keys(stateData.documents).indexOf(currentDoc) > -1 &&
+        Object.keys(state.tabs).indexOf(currentDoc) == -1) {
+      addTab(state, currentDoc, stateData.documents[currentDoc]);
+    } else if (Object.keys(stateData.documents).indexOf(currentDoc) == -1) {
+      rendererStore.dispatch(actions.changeCurrentDoc(''));
+    }
+  }
+}
+
+function updateTabTitles(state, stateData) {
+  for (var docTabId in state.tabs) {
+    var docTab = state.tabs[docTabId],
+        tab = state.tabGroup.getTab(docTab),
+        tabTitle = tab.getTitle(),
+        docTitle = stateData.documents[docTabId].title;
+    if (tabTitle !== docTitle) {
+      tab.setTitle(docTitle);
+    }
+  }
+}
+
+function registerTabGroupEvents(state) {
+  state.tabGroup.on("tab-added", function(tab, tabGroup) {
+    setTimeout(function() {tab.tab.classList.remove('just-added')}, 500);
+    tab.webview.addEventListener('dom-ready', function(e) {
+      var x = window.scrollX, y = window.scrollY;
+      tab.webview.focus();
+      // tab.webview.openDevTools();
+    });
+  });
+
+  state.tabGroup.on("tab-removed", function(tab, tabGroup) {
+    var closedDocument = null;
+    for (var docTab in state.tabs) {
+      if (state.tabs[docTab] === tab.id) {
+        closedDocument = docTab;
+        delete state.tabs[docTab];
       }
-  };
+    }
 
-  // console.log(m.mount(tab.webview, Document));
-  // tab.on("webview-ready", function(tab) {
-  //   tab.webview.loadURL(url);
-  // });
-
-
-  return tabConfig;
+    if (rendererStore.getState().currentDocument === closedDocument) {
+      rendererStore.dispatch(actions.changeCurrentDoc(''));
+    }
+  });
 }
