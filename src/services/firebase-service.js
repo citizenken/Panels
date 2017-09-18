@@ -3,6 +3,9 @@ var oauthService = require('./oauth-service.js');
 var mainStore = require('../mainStore.js');
 var actions = require('../state/actions/actions');
 var axios = require('axios');
+var User = require('../models/user');
+var Document = require('../models/document');
+var Immutable = require('seamless-immutable');
 
 var config = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -49,20 +52,35 @@ module.exports = firebaseService = {
               });
     }
   },
+  createUser: function(user) {
+    return new Promise(function(resolve) {
+      resolve(new User.User(user));
+    });
+  },
   loadUser: function (user) {
     var self = this;
+
     return firebase.database().ref('/users/' + user.uid + '')
             .once('value')
             .then(function(userSnapshot) {
               var userObj = userSnapshot.val();
-              self.firebaseUser = userObj;
-              return userObj;
+              if (userObj === null) {
+                return self.createUser(user)
+                .then(function () {
+                  return self.loadUser(user);
+                });
+              } else {
+                self.firebaseUser = userObj;
+                return userObj;
+              }
             });
   },
   loadUserFiles: function(user) {
-    var filesToRetrieve = Object.keys(user.files).length,
+    var self = this,
+        filesToRetrieve = Object.keys(user.files).length,
         retrievedFiles = {},
         filesToLoad = {};
+
     return new Promise(function(resolve) {
       firebase.database().ref('/files')
         .orderByChild('author')
@@ -70,6 +88,7 @@ module.exports = firebaseService = {
         .on('child_added', function(snapshot) {
           var doc = snapshot.val();
           if (!doc.deleted) {
+            self.setFileListener(doc.id);
             filesToLoad[doc.id] = doc;
           }
           retrievedFiles[doc.id] = doc;
@@ -78,5 +97,46 @@ module.exports = firebaseService = {
           }
         });
     })
+  },
+  setFileListener: function(fileID) {
+    var self = this,
+        fileRef = firebase.database().ref('/files/' + fileID);
+
+    fileRef.on('value', function(snapshot) {
+      var updated = Immutable(snapshot.val())
+          storedDoc = mainStore.getState().documents[updated.id];
+
+      if (Document.hasRemoteContentUpdated(storedDoc, updated)) {
+        mainStore.dispatch(actions.updateDoc(updated));
+      }
+    });
+  },
+  addFileToUser: function(fileID) {
+    var self = this;
+    firebase.database().ref('/users/' + self.firebaseUser.id + '/files/' + fileID).set(true)
+      .then(function() {
+        console.log('firebase user add complete');
+      })
+      .catch(function(error) {
+        console.log('a firebase error', error)
+      });
+
+  },
+  updateRemoteFile: function(file) {
+    firebase.database().ref('/files/' + file.id).set(file)
+      .then(function() {
+        console.log('firebase update complete');
+      })
+      .catch(function(error) {
+        console.log('a firebase error', error)
+      });
   }
 }
+
+
+
+
+
+
+
+

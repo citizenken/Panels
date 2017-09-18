@@ -4,7 +4,7 @@ var state = require('./state/state')
 
 var enhancer = Redux.compose(
     RES.electronEnhancer({
-    // Allows synched actions to pass through all enhancers 
+    // Allows synched actions to pass through all enhancers
     dispatchProxy: a => rendererStore.dispatch(a),
   })
 )

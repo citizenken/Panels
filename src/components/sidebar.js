@@ -14,7 +14,6 @@ var actions = require('../state/actions/actions');
 module.exports = Sidebar = {
   view: function({attrs}) {
     var elements = [];
-      console.log(attrs)
     if (attrs.stateData) {
 
       for (var prop in attrs.stateData.documents) {

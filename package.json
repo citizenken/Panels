@@ -14,7 +14,7 @@
     "test": "xo",
     "start": "electron .",
     "debug": "electron --inspect=5858 .",
-    "debug-brk": "electron --inspect-brk=5858 .",
+    "debug-brk": "electron --inspect-brk=5859 .",
     "build": "electron-packager . --out=dist --asar --overwrite --all"
   },
   "files": [
@@ -30,6 +30,7 @@
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
     "codemirror": "^5.28.0",
+    "deep-equal": "^1.0.1",
     "dragula": "^3.7.2",
     "electron-debug": "^1.0.0",
     "electron-tabs": "^0.7.1",
