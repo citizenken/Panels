@@ -42,7 +42,7 @@ module.exports = Tabs = {
     updateTabTitles(state, attrs.stateData);
   },
   view: function({state, attrs, dom}) {
-    return m("div", {style: "float:right;width:50%;"}, [
+    return m("div", {style: "float:right;width:90%;"}, [
       m(".etabs-tabgroup", [
         m(".etabs-tabs"),
         m(".etabs-buttons"),

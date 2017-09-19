@@ -12,7 +12,8 @@ var actions = require('../state/actions/actions');
 // });
 
 module.exports = Sidebar = {
-  view: function({attrs}) {
+  sliderWidth: null,
+  view: function({state, attrs, dom}) {
     var elements = [];
     if (attrs.stateData) {
 
@@ -27,10 +28,38 @@ module.exports = Sidebar = {
         );
       }
     }
-    return m("div", {style: "float:left;width:50%;"}, [
-      m("ul", elements)
+    var width = undefined;
+    if (state.sliderWidth) {
+      console.log(state.sliderWidth)
+      width = state.sliderWidth
+    }
+    return m("div.side-bar", {
+      style: "width:" + width
+    }, [
+      m("div.bar-content", [
+        m('ul', elements)
+        ]),
+      m("div.draggable", {onmousedown: function(e) {onMousedown(state, e)}})
     ]);
   }
+}
+
+function onMousedown(state, event) {
+  var mousemoveHandler = function(event) {
+    console.log(state.sliderWidth)
+    var pageX = event.pageX;
+    var minWidth = document.getElementsByTagName('body')[0].offsetWidth * .10;
+    state.sliderWidth = Math.max(minWidth, pageX) + "px";
+    m.redraw();
+  }
+
+  var mouseupHandler = function() {
+    document.removeEventListener('mousemove', mousemoveHandler, false);
+    document.removeEventListener('mouseup', mouseupHandler, false);
+  }
+
+  document.addEventListener('mousemove', mousemoveHandler, false);
+  document.addEventListener('mouseup', mouseupHandler, false);
 }
 
 function changeDoc(docId) {

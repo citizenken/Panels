@@ -58,8 +58,6 @@ function updateOnCMChange(doc, c, change) {
     updated = Immutable.set(updated, 'title', updated.content.substring(0,10));
   }
 
-  // rendererStore.dispatch(actions.updateDoc(updated));
-  // firebaseService.updateRemoteFile(updated);
   return updated;
 };
 
