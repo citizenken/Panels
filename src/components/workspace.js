@@ -18,7 +18,15 @@ var cmOptions = {
     pollInterval: 100
 };
 
+var stateData = rendererStore.getState();
+var unsubscribe = rendererStore.subscribe(function() {
+  stateData = rendererStore.getState();
+  // console.log(stateData);
+  m.redraw();
+});
+
 module.exports = Workspace = {
+  doc: null,
   oncreate: function ({state, attrs, dom}) {
     var storeState = rendererStore.getState(),
         docId = queryParams.docId,
@@ -27,8 +35,8 @@ module.exports = Workspace = {
 
     if (Object.keys(storeState.documents).indexOf(docId) > -1) {
       doc = storeState.documents[docId];
-      state.cm.setValue(doc.content);
-      state.cm.refresh()
+      setCodeMirrorValue(state, doc);
+
     } else {
       doc = new Document.Document(docId, docTitle, 'comicbook')
       rendererStore.dispatch(actions.addDoc(doc));
@@ -38,16 +46,32 @@ module.exports = Workspace = {
     state.cm.focus();
     registerCodeMirrorEvents(state);
   },
+  onupdate: function({state, attrs, dom}) {
+    if (state.doc) {
+      var documents = attrs.stateData.documents,
+          stateDoc = documents[state.doc.id],
+          localDoc = state.doc;
+      if (Document.hasRemoteContentUpdated(localDoc, stateDoc)) {
+        setCodeMirrorValue(state, stateDoc);
+      }
+    }
+  },
   view: function() {
     return m(".page");
   }
 }
 
+function setCodeMirrorValue(state, doc) {
+  state.doc = doc;
+  state.cm.setValue(doc.content);
+  state.cm.refresh();
+}
+
 function registerCodeMirrorEvents(state) {
-  debugger
   state.cm.on('changes', function (c, change) {
     if (c.getValue() !== state.doc.content) {
       state.doc = Document.updateOnCMChange(state.doc, c, change);
+      Document.emitChanges(state.doc);
     }
   });
 
@@ -58,4 +82,4 @@ function registerCodeMirrorEvents(state) {
   });
 }
 
-m.mount(root, Workspace)
+m.mount(root, {view: function () {return m(Workspace, {stateData: stateData})}})
