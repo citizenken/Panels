@@ -3,14 +3,6 @@ var rendererStore = require('../rendererStore');
 var actions = require('../state/actions/actions');
 
 
-//   value : rendererStore.getState()
-// }
-// var stateS
-// var unsub = rendererStore.subscribe(function() {
-//   App.value = rendererStore.getState();
-//   m.redraw();
-// });
-
 module.exports = Sidebar = {
   sliderWidth: null,
   view: function({state, attrs, dom}) {
@@ -30,9 +22,9 @@ module.exports = Sidebar = {
     }
     var width = undefined;
     if (state.sliderWidth) {
-      console.log(state.sliderWidth)
       width = state.sliderWidth
     }
+
     return m("div.side-bar", {
       style: "width:" + width
     }, [
@@ -45,11 +37,12 @@ module.exports = Sidebar = {
 }
 
 function onMousedown(state, event) {
+  var minWidth = document.getElementsByTagName('body')[0].offsetWidth * .10;
   var mousemoveHandler = function(event) {
-    console.log(state.sliderWidth)
-    var pageX = event.pageX;
-    var minWidth = document.getElementsByTagName('body')[0].offsetWidth * .10;
-    state.sliderWidth = Math.max(minWidth, pageX) + "px";
+    var pageX = event.pageX,
+        newSliderWidth = Math.max(minWidth, pageX);
+    state.sliderWidth = newSliderWidth + "px";
+    rendererStore.dispatch(actions.resizeSidebar(newSliderWidth));
     m.redraw();
   }
 

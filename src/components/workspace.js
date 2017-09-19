@@ -28,15 +28,15 @@ var unsubscribe = rendererStore.subscribe(function() {
 module.exports = Workspace = {
   doc: null,
   oncreate: function ({state, attrs, dom}) {
+    debugger
     var storeState = rendererStore.getState(),
         docId = queryParams.docId,
         docTitle = queryParams.docTitle;
     state.cm = CodeMirror(dom, cmOptions);
-
+    console.log(storeState.documents);
     if (Object.keys(storeState.documents).indexOf(docId) > -1) {
       doc = storeState.documents[docId];
       setCodeMirrorValue(state, doc);
-
     } else {
       doc = new Document.Document(docId, docTitle, 'comicbook')
       rendererStore.dispatch(actions.addDoc(doc));

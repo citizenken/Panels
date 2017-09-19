@@ -42,7 +42,14 @@ module.exports = Tabs = {
     updateTabTitles(state, attrs.stateData);
   },
   view: function({state, attrs, dom}) {
-    return m("div", {style: "float:right;width:90%;"}, [
+    var width = undefined;
+    if (attrs.stateData.sidebarConfig.width) {
+      var sidebarWidth = attrs.stateData.sidebarConfig.width,
+          width = document.getElementsByTagName('body')[0].offsetWidth - sidebarWidth + 'px';
+    }
+    return m("div.workspace-container", {
+      style: "width:" + width
+    },[
       m(".etabs-tabgroup", [
         m(".etabs-tabs"),
         m(".etabs-buttons"),

@@ -122,7 +122,7 @@ module.exports = firebaseService = {
       });
 
   },
-  updateRemoteFile: function(file) {
+  writeRemoteFile: function(file) {
     firebase.database().ref('/files/' + file.id).set(file)
       .then(function() {
         console.log('firebase update complete');

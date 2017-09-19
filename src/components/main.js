@@ -30,7 +30,7 @@ var Main = {
   view: function() {
     return m(".main", [
       m(Sidebar, {stateData: stateData}),
-      m(Tabs, {stateData: stateData}),
+      m(Tabs, {stateData: stateData})
     ])
   }
 }

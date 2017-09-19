@@ -43,6 +43,7 @@ function Document(id, title, scriptType) {
   if (firebaseService) {
     doc = Immutable.set(doc, 'author', firebaseService.firebaseUser.id);
     firebaseService.addFileToUser(doc.id);
+    firebaseService.writeRemoteFile(doc);
   }
   return doc;
 };
@@ -63,7 +64,7 @@ function updateOnCMChange(doc, c, change) {
 
 function emitChanges(updated) {
   rendererStore.dispatch(actions.updateDoc(updated));
-  firebaseService.updateRemoteFile(updated);
+  firebaseService.writeRemoteFile(updated);
 }
 
 function hasRemoteContentUpdated(local, remote) {

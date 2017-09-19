@@ -8,7 +8,8 @@ module.exports = {
   openDoc,
   updateConfig,
   loadConfig,
-  loadDocs
+  loadDocs,
+  resizeSidebar
 }
 
 
@@ -61,5 +62,12 @@ function updateConfig(configUpdate) {
       key: configUpdate.key,
       value: configUpdate.value
     }
+  }
+}
+
+function resizeSidebar(newWidth) {
+  return {
+    type: actionTypes.RESIZE_SIDEBAR,
+    width: newWidth
   }
 }
