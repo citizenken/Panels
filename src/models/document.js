@@ -1,15 +1,14 @@
 var randomstring = require("randomstring");
 var Immutable = require('seamless-immutable');
 var actions = require('../state/actions/actions');
-var rendererStore = require('../rendererStore');
-// var path = require('path');
-// var firebasePath = path.resolve(__dirname, '..', 'services', 'firebase-service.js');
-// var firebaseService = require('electron').remote.require(firebasePath);
-if (require('electron').remote) {
-  var firebaseService = require('electron').remote.getGlobal('firebaseService') || undefined;
-}
-
+var stateStore = undefined;
 var deepEqual = require('deep-equal');
+if (process.type !== 'browser') {
+  stateStore = require('../rendererStore');
+  var firebaseService = require('electron').remote.getGlobal('firebaseService');
+} else {
+  stateStore = require('../mainStore');
+}
 
 module.exports = {
   Document,
@@ -42,8 +41,7 @@ function Document(id, title, scriptType) {
 
   if (firebaseService) {
     doc = Immutable.set(doc, 'author', firebaseService.firebaseUser.id);
-    firebaseService.addFileToUser(doc.id);
-    firebaseService.writeRemoteFile(doc);
+    // firebaseService.addFileToUser(doc.id);
   }
   return doc;
 };
@@ -59,12 +57,14 @@ function updateOnCMChange(doc, c, change) {
     updated = Immutable.set(updated, 'title', updated.content.substring(0,10));
   }
 
+  // stateStore.dispatch(actions.updateDoc(updated));
+  // firebaseService.updateRemoteFile(updated);
   return updated;
 };
 
 function emitChanges(updated) {
-  rendererStore.dispatch(actions.updateDoc(updated));
-  firebaseService.writeRemoteFile(updated);
+  stateStore.dispatch(actions.updateDoc(updated));
+  firebaseService.updateRemoteFile(updated);
 }
 
 function hasRemoteContentUpdated(local, remote) {

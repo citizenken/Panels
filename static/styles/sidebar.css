@@ -1,7 +1,3 @@
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
 .side-bar {
   float: left;
   position: relative;
@@ -13,6 +9,8 @@
 
 .bar-content {
   width: calc(100% - 10px);
+  overflow-x: scroll;
+  height: 100%;
 }
 
 .draggable {

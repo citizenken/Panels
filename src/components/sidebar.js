@@ -21,8 +21,8 @@ module.exports = Sidebar = {
       }
     }
     var width = undefined;
-    if (state.sliderWidth) {
-      width = state.sliderWidth
+    if (state.sliderWidth || attrs.stateData.sidebarConfig.width) {
+      width = state.sliderWidth || (attrs.stateData.sidebarConfig.width + "px");
     }
 
     return m("div.side-bar", {
@@ -37,7 +37,7 @@ module.exports = Sidebar = {
 }
 
 function onMousedown(state, event) {
-  var minWidth = document.getElementsByTagName('body')[0].offsetWidth * .10;
+  var minWidth = 10;
   var mousemoveHandler = function(event) {
     var pageX = event.pageX,
         newSliderWidth = Math.max(minWidth, pageX);
