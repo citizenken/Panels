@@ -1,6 +1,7 @@
 var m = require("mithril")
 var rendererStore = require('../rendererStore');
 var actions = require('../state/actions/actions');
+var Document = require('../models/document')
 
 
 module.exports = Sidebar = {
@@ -56,5 +57,5 @@ function onMousedown(state, event) {
 }
 
 function changeDoc(docId) {
-  rendererStore.dispatch(actions.changeCurrentDoc(docId))
+  Document.setAsCurrentDoc(docId);
 }

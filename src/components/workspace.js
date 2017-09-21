@@ -28,7 +28,6 @@ var unsubscribe = rendererStore.subscribe(function() {
 module.exports = Workspace = {
   doc: null,
   oncreate: function ({state, attrs, dom}) {
-    debugger
     var storeState = rendererStore.getState(),
         docId = queryParams.docId,
         docTitle = queryParams.docTitle;
@@ -76,8 +75,10 @@ function registerCodeMirrorEvents(state) {
   });
 
   state.cm.on('focus', function (c, change) {
+    console.log('i was focused')
+    console.log(rendererStore.getState().currentDocument, state.doc.id)
     if (rendererStore.getState().currentDocument !== state.doc.id) {
-      rendererStore.dispatch(actions.changeCurrentDoc(state.doc.id));
+      Document.setAsCurrentDoc(state.doc.id);
     }
   });
 }

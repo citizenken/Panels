@@ -130,6 +130,16 @@ module.exports = firebaseService = {
       .catch(function(error) {
         console.log('a firebase error', error)
       });
+  },
+  updateUserCurrentFile: function(fileID) {
+    var self = this;
+    firebase.database().ref('/users/' + self.firebaseUser.id + '/currentFile').set(fileID)
+      .then(function() {
+        console.log('firebase update complete');
+      })
+      .catch(function(error) {
+        console.log('a firebase error', error)
+      });
   }
 }
 

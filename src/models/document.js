@@ -14,7 +14,8 @@ module.exports = {
   Document,
   updateOnCMChange,
   emitChanges,
-  hasRemoteContentUpdated
+  hasRemoteContentUpdated,
+  setAsCurrentDoc
 }
 
 function Document(id, title, scriptType) {
@@ -41,7 +42,8 @@ function Document(id, title, scriptType) {
 
   if (firebaseService) {
     doc = Immutable.set(doc, 'author', firebaseService.firebaseUser.id);
-    // firebaseService.addFileToUser(doc.id);
+    firebaseService.addFileToUser(doc.id);
+    firebaseService.writeRemoteFile(doc);
   }
   return doc;
 };
@@ -64,7 +66,7 @@ function updateOnCMChange(doc, c, change) {
 
 function emitChanges(updated) {
   stateStore.dispatch(actions.updateDoc(updated));
-  firebaseService.updateRemoteFile(updated);
+  firebaseService.writeRemoteFile(updated);
 }
 
 function hasRemoteContentUpdated(local, remote) {
@@ -75,4 +77,9 @@ function hasRemoteContentUpdated(local, remote) {
     }
   }
   return false;
+}
+
+function setAsCurrentDoc(docID) {
+  firebaseService.updateUserCurrentFile(docID);
+  rendererStore.dispatch(actions.changeCurrentDoc(docID));
 }
