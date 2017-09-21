@@ -75,11 +75,13 @@ function registerCodeMirrorEvents(state) {
   });
 
   state.cm.on('focus', function (c, change) {
-    console.log('i was focused')
-    console.log(rendererStore.getState().currentDocument, state.doc.id)
-    if (rendererStore.getState().currentDocument !== state.doc.id) {
-      Document.setAsCurrentDoc(state.doc.id);
+    if (rendererStore.getState().currentDocument.id !== state.doc.id) {
+      Document.setAsCurrentDoc(state.doc.id, c);
     }
+  });
+
+  state.cm.on('cursorActivity', function (c) {
+    Document.upateCursorLocation(c);
   });
 }
 

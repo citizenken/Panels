@@ -15,7 +15,8 @@ module.exports = {
   updateOnCMChange,
   emitChanges,
   hasRemoteContentUpdated,
-  setAsCurrentDoc
+  setAsCurrentDoc,
+  upateCursorLocation
 }
 
 function Document(id, title, scriptType) {
@@ -79,7 +80,20 @@ function hasRemoteContentUpdated(local, remote) {
   return false;
 }
 
-function setAsCurrentDoc(docID) {
+function setAsCurrentDoc(docID, cm) {
   firebaseService.updateUserCurrentFile(docID);
-  rendererStore.dispatch(actions.changeCurrentDoc(docID));
+  stateStore.dispatch(actions.changeCurrentDoc(docID));
+  if (cm) {
+    upateCursorLocation(cm);
+  }
+}
+
+function upateCursorLocation(cm) {
+  var cursor = cm.getCursor(),
+      cursor = {
+        line: cursor.line,
+        ch: cursor.ch
+      };
+  firebaseService.updateUserCursor(cursor);
+  stateStore.dispatch(actions.userCursorUpdate(cursor));
 }

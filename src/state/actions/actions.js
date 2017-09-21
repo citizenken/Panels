@@ -9,7 +9,8 @@ module.exports = {
   updateConfig,
   loadConfig,
   loadDocs,
-  resizeSidebar
+  resizeSidebar,
+  userCursorUpdate
 }
 
 
@@ -69,5 +70,12 @@ function resizeSidebar(newWidth) {
   return {
     type: actionTypes.RESIZE_SIDEBAR,
     width: newWidth
+  }
+}
+
+function userCursorUpdate(cursor) {
+  return {
+    type: actionTypes.USER_CURSOR_UPDATE,
+    cursor: cursor
   }
 }

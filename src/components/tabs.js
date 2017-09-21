@@ -30,7 +30,7 @@ module.exports = Tabs = {
   },
  onupdate: function({state, attrs, dom}) {
     var activeTabId = state.tabGroup.getActiveTab(),
-        currentDoc = attrs.stateData.currentDocument
+        currentDoc = attrs.stateData.currentDocument.id
         tabs = state.tabs;
 
     if (currentDoc) {
@@ -94,7 +94,7 @@ function addTab(state, docId, loadedDoc) {
 }
 
 function openLastDoc(state, stateData) {
-  var currentDoc = stateData.currentDocument;
+  var currentDoc = stateData.currentDocument.id;
   if (currentDoc) {
     if (Object.keys(stateData.documents).indexOf(currentDoc) > -1 &&
         Object.keys(state.tabs).indexOf(currentDoc) == -1) {
@@ -136,7 +136,7 @@ function registerTabGroupEvents(state) {
       }
     }
 
-    if (rendererStore.getState().currentDocument === closedDocument) {
+    if (rendererStore.getState().currentDocument.id === closedDocument) {
       rendererStore.dispatch(actions.changeCurrentDoc(''));
     }
   });

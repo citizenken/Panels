@@ -8,7 +8,7 @@ var Immutable = require('seamless-immutable');
 
 // Initial state
 var initialState = Immutable({
-  currentDocument: '',
+  currentDocument: {},
   documents: {},
   tabs: {},
   sysConfig: {},
