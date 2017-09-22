@@ -89,10 +89,11 @@ function setAsCurrentDoc(docID, cm) {
 }
 
 function upateCursorLocation(cm) {
-  var cursor = cm.getCursor(),
-      cursor = {
-        line: cursor.line,
-        ch: cursor.ch
+  var rawCursor = cm.getCursor();
+  console.log(rawCursor)
+  var cursor = {
+        line: rawCursor.line,
+        ch: rawCursor.ch
       };
   firebaseService.updateUserCursor(cursor);
   stateStore.dispatch(actions.userCursorUpdate(cursor));

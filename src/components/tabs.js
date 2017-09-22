@@ -8,6 +8,8 @@ var rendererStore = require('../rendererStore');
 var actions = require('../state/actions/actions');
 var Immutable = require('seamless-immutable');
 
+window.addEventListener('resize', m.redraw, false);
+
 module.exports = Tabs = {
   tabGroup: null,
   tabs: {},

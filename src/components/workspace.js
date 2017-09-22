@@ -75,6 +75,7 @@ function registerCodeMirrorEvents(state) {
   });
 
   state.cm.on('focus', function (c, change) {
+    Document.upateCursorLocation(c);
     if (rendererStore.getState().currentDocument.id !== state.doc.id) {
       Document.setAsCurrentDoc(state.doc.id, c);
     }

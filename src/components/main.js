@@ -2,6 +2,7 @@ var m = require('mithril')
 var path = require('path');
 var Tabs = require('./tabs')
 var Sidebar = require('./sidebar')
+var Footer = require('./footer')
 var rendererStore = require('../rendererStore');
 // var oauthService = require('../services/oauth-service.js');
 var firebasePath = path.resolve(__dirname, '..', 'services', 'firebase-service.js');
@@ -30,7 +31,8 @@ var Main = {
   view: function() {
     return m(".main", [
       m(Sidebar, {stateData: stateData}),
-      m(Tabs, {stateData: stateData})
+      m(Tabs, {stateData: stateData}),
+      // m(Footer, {stateData: stateData}),
     ])
   }
 }

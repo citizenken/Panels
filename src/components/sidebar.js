@@ -38,7 +38,7 @@ module.exports = Sidebar = {
 }
 
 function onMousedown(state, event) {
-  var minWidth = 10;
+  var minWidth = 3;
   var mousemoveHandler = function(event) {
     var pageX = event.pageX,
         newSliderWidth = Math.max(minWidth, pageX);

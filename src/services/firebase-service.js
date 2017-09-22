@@ -82,13 +82,13 @@ module.exports = firebaseService = {
         filesToLoad = {};
 
     return new Promise(function(resolve) {
-      firebase.database().ref('/files')
+      var query = firebase.database().ref('/files')
         .orderByChild('author')
-        .equalTo(user.id)
-        .on('child_added', function(snapshot) {
+        .equalTo(user.id);
+        query.on('child_added', function(snapshot) {
+          console.log('child_added fired');
           var doc = snapshot.val();
           if (!doc.deleted) {
-            self.setFileListener(doc.id);
             filesToLoad[doc.id] = doc;
           }
           retrievedFiles[doc.id] = doc;
@@ -96,20 +96,18 @@ module.exports = firebaseService = {
             resolve(filesToLoad);
           }
         });
+        query.on('child_changed', function(snapshot) {
+          self.detectFileChanges(snapshot);
+        });
     })
   },
-  setFileListener: function(fileID) {
-    var self = this,
-        fileRef = firebase.database().ref('/files/' + fileID);
+  detectFileChanges: function(snapshot) {
+    var updated = Immutable(snapshot.val())
+    storedDoc = mainStore.getState().documents[updated.id];
 
-    fileRef.on('value', function(snapshot) {
-      var updated = Immutable(snapshot.val())
-          storedDoc = mainStore.getState().documents[updated.id];
-
-      if (Document.hasRemoteContentUpdated(storedDoc, updated)) {
-        mainStore.dispatch(actions.updateDoc(updated));
-      }
-    });
+    if (Document.hasRemoteContentUpdated(storedDoc, updated)) {
+      mainStore.dispatch(actions.updateDoc(updated));
+    }
   },
   addFileToUser: function(fileID) {
     var self = this;
@@ -133,9 +131,9 @@ module.exports = firebaseService = {
   },
   updateUserCurrentFile: function(fileID) {
     var self = this;
-    firebase.database().ref('/users/' + self.firebaseUser.id + '/currentFile').set(fileID)
+    firebase.database().ref('/users/' + self.firebaseUser.id + '/currentFile/id').set(fileID)
       .then(function() {
-        console.log('firebase update complete');
+        console.log('firebase update current file complete');
       })
       .catch(function(error) {
         console.log('a firebase error', error)
@@ -143,7 +141,7 @@ module.exports = firebaseService = {
   },
   updateUserCursor: function(cursor) {
     var self = this;
-    firebase.database().ref('/users/' + self.firebaseUser.id + '/currentCursorPosition').set(cursor)
+    firebase.database().ref('/users/' + self.firebaseUser.id + '/currentFile/currentCursorPosition').set(cursor)
       .then(function() {
         console.log('firebase update complete');
       })

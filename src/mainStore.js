@@ -13,6 +13,6 @@ var enhancer = Redux.compose(
 
 module.exports = mainStore = Redux.createStore(state.panelsApp, state.initialState, enhancer)
 
-let unsubscribe = mainStore.subscribe(function () {
-  console.log(mainStore.getState())
-});
+// let unsubscribe = mainStore.subscribe(function () {
+//   console.log(mainStore.getState())
+// });
