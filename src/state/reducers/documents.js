@@ -9,9 +9,9 @@ module.exports = function documentReducer(documents = Immutable({}), action) {
     case actionTypes.UPDATE_DOCUMENT:
       console.log('update');
       return Immutable.set(documents, action.document.id, action.document);
-    case actionTypes.LOAD_DOCS:
+    case actionTypes.LOAD_DOC:
       console.log('loaded');
-      return Immutable(action.documents);
+      return Immutable.set(documents, action.document.id, action.document);
     default:
       return documents;
   }

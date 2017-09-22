@@ -8,9 +8,11 @@ module.exports = {
   openDoc,
   updateConfig,
   loadConfig,
-  loadDocs,
+  loadDoc,
   resizeSidebar,
-  userCursorUpdate
+  userCursorUpdate,
+  collabCursorUpdate,
+  removeCollabCursor
 }
 
 
@@ -42,10 +44,10 @@ function openDoc(tab) {
   }
 }
 
-function loadDocs(documents) {
+function loadDoc(doc) {
   return {
-    type: actionTypes.LOAD_DOCS,
-    documents: documents
+    type: actionTypes.LOAD_DOC,
+    document: doc
   }
 }
 
@@ -77,5 +79,20 @@ function userCursorUpdate(cursor) {
   return {
     type: actionTypes.USER_CURSOR_UPDATE,
     cursor: cursor
+  }
+}
+
+function collabCursorUpdate(collabID, cursor) {
+  return {
+    type: actionTypes.COLLAB_USER_CURSOR_UPDATE,
+    collabID: collabID,
+    cursor: cursor
+  }
+}
+
+function removeCollabCursor(collabID) {
+  return {
+    type: actionTypes.REMOVE_COLLAB_USER_CURSOR,
+    collabID: collabID
   }
 }

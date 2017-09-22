@@ -1,7 +1,7 @@
 var m = require('mithril')
 var Sidebar = require('./sidebar')
 var CodeMirror = require('codemirror')
-// var CodeMirrorAddon = require('codemirror/addon/display/fullscreen')
+var Immutable = require('seamless-immutable');
 var Document = require('../models/document');
 var actions = require('../state/actions/actions');
 var rendererStore = require('../rendererStore');
@@ -26,7 +26,18 @@ var unsubscribe = rendererStore.subscribe(function() {
 });
 
 module.exports = Workspace = {
+  view: function() {
+    return m('div', [
+      m(Page, {stateData: stateData}),
+      m('div#cursor_mount', {style: 'display:none'})
+      ]);
+  }
+}
+
+module.exports = Page = {
   doc: null,
+  cm: null,
+  cursors: {},
   oncreate: function ({state, attrs, dom}) {
     var storeState = rendererStore.getState(),
         docId = queryParams.docId,
@@ -34,7 +45,7 @@ module.exports = Workspace = {
     state.cm = CodeMirror(dom, cmOptions);
     console.log(storeState.documents);
     if (Object.keys(storeState.documents).indexOf(docId) > -1) {
-      doc = storeState.documents[docId];
+      doc = Immutable(storeState.documents[docId]);
       setCodeMirrorValue(state, doc);
     } else {
       doc = new Document.Document(docId, docTitle, 'comicbook')
@@ -47,13 +58,15 @@ module.exports = Workspace = {
   },
   onupdate: function({state, attrs, dom}) {
     if (state.doc) {
-      var documents = attrs.stateData.documents,
+      var stateData = Immutable(attrs.stateData),
+          documents = stateData.documents,
           stateDoc = documents[state.doc.id],
           localDoc = state.doc;
       if (Document.hasRemoteContentUpdated(localDoc, stateDoc)) {
         setCodeMirrorValue(state, stateDoc);
       }
     }
+    setCollabCursors(state, stateData.currentDocument.collabCursors);
   },
   view: function() {
     return m(".page");
@@ -86,4 +99,38 @@ function registerCodeMirrorEvents(state) {
   });
 }
 
-m.mount(root, {view: function () {return m(Workspace, {stateData: stateData})}})
+function setCollabCursors(state, cursors) {
+  var cm = state.cm,
+      updatedCursorKeys = Object.keys(cursors),
+      stateCursorKeys = Object.keys(state.cursors),
+      allMarks = cm.getAllMarks();
+
+  // clear all existing marks
+  for (var i in allMarks) {
+    allMarks[i].clear();
+  }
+
+  // clear out a user's cursor element if it isn't in the stateData anymore
+  for (var key in stateCursorKeys) {
+    var collabId = stateCursorKeys[key];
+    if (updatedCursorKeys.indexOf(collabId) === -1) {
+      delete state.cursors[collabId]
+    }
+  }
+
+  for (var cursor in cursors) {
+    var cursorData = cursors[cursor];
+    if (!state.cursors[cursor]) {
+      var cursorColor = 'blue',
+          cursorEl = m('div.collab-cursor#' + cursor, [
+            m('div.cursor', {style: 'border-color:' + cursorColor})
+            ]);
+      m.render(document.getElementById('cursor_mount'), cursorEl);
+      state.cursors[cursor] = document.getElementById(cursor).cloneNode(true);
+    }
+    cm.setBookmark(cursorData, {widget: state.cursors[cursor]})
+  }
+}
+
+
+m.mount(root, Workspace)

@@ -82,6 +82,7 @@ function hasRemoteContentUpdated(local, remote) {
 
 function setAsCurrentDoc(docID, cm) {
   firebaseService.updateUserCurrentFile(docID);
+  firebaseService.getCurrentCollaboratorCursors(docID);
   stateStore.dispatch(actions.changeCurrentDoc(docID));
   if (cm) {
     upateCursorLocation(cm);
