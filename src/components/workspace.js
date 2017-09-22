@@ -21,7 +21,6 @@ var cmOptions = {
 var stateData = rendererStore.getState();
 var unsubscribe = rendererStore.subscribe(function() {
   stateData = rendererStore.getState();
-  // console.log(stateData);
   m.redraw();
 });
 
