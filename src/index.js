@@ -45,9 +45,6 @@ function createMainWindow() {
       firebaseService.signIn()
       .then(function (user) {
         return firebaseService.loadUserFiles(user);
-      })
-      .then(function(files) {
-        mainStore.dispatch(actions.loadDocs(files));
       });
     }
   })

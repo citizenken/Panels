@@ -19,6 +19,7 @@ var config = {
 module.exports = firebaseService = {
   app: firebase.initializeApp(config),
   firebaseUser: null,
+  collabCursorQuery: null,
   signIn: function(token) {
     var refreshToken = mainStore.getState().sysConfig.refreshToken,
         oauthRoot = mainStore.getState().sysConfig.oauthRoot,
@@ -81,25 +82,18 @@ module.exports = firebaseService = {
         retrievedFiles = {},
         filesToLoad = {};
 
-    return new Promise(function(resolve) {
-      var query = firebase.database().ref('/files')
+    var query = firebase.database().ref('/files')
         .orderByChild('author')
         .equalTo(user.id);
-        query.on('child_added', function(snapshot) {
-          console.log('child_added fired');
-          var doc = snapshot.val();
-          if (!doc.deleted) {
-            filesToLoad[doc.id] = doc;
-          }
-          retrievedFiles[doc.id] = doc;
-          if (Object.keys(retrievedFiles).length === filesToRetrieve) {
-            resolve(filesToLoad);
-          }
-        });
-        query.on('child_changed', function(snapshot) {
-          self.detectFileChanges(snapshot);
-        });
-    })
+    query.on('child_added', function(snapshot) {
+      var doc = snapshot.val();
+      if (!doc.deleted) {
+        mainStore.dispatch(actions.loadDoc(doc));
+      }
+    });
+    query.on('child_changed', function(snapshot) {
+      self.detectFileChanges(snapshot);
+    });
   },
   detectFileChanges: function(snapshot) {
     var updated = Immutable(snapshot.val())
@@ -148,6 +142,35 @@ module.exports = firebaseService = {
       .catch(function(error) {
         console.log('a firebase error', error)
       });
+  },
+  getCurrentCollaboratorCursors: function(docID) {
+    var self = this,
+        collaboratorCursors = [];
+
+    if (self.collabCursorQuery) {
+      self.collabCursorQuery.off();
+    }
+
+    var query = firebase.database().ref('/users')
+      .orderByChild('currentFile/id')
+      .equalTo(docID);
+    self.collabCursorQuery = query;
+    query.on('child_added', function(snapshot) {
+      self.updateCollabCursor(snapshot);
+    });
+    query.on('child_changed', function(snapshot) {
+      self.updateCollabCursor(snapshot);
+    });
+    query.on('child_removed', function(snapshot) {
+      mainStore.dispatch(actions.removeCollabCursor(snapshot.val().id));
+    });
+  },
+  updateCollabCursor: function(snapshot) {
+    var self = this,
+        collab = snapshot.val();
+    if (collab.id !== self.firebaseUser.id) {
+      mainStore.dispatch(actions.collabCursorUpdate(collab.id, collab.currentFile.currentCursorPosition));
+    }
   }
 }
 
