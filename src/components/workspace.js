@@ -1,6 +1,5 @@
 var m = require('mithril')
 var Sidebar = require('./sidebar')
-// var CodeMirror = require('codemirror')
 var Immutable = require('seamless-immutable');
 var Document = require('../models/document');
 var actions = require('../state/actions/actions');
@@ -33,19 +32,24 @@ module.exports = Page = {
   oncreate: function ({state, attrs, dom}) {
     var storeState = rendererStore.getState(),
         docId = queryParams.docId,
-        docTitle = queryParams.docTitle;
-    state.CMService = new CMService.CMService(dom, state);
-    console.log(storeState.documents);
+        docTitle = queryParams.docTitle
+        loadDoc = null;
+
     if (Object.keys(storeState.documents).indexOf(docId) > -1) {
       doc = Immutable(storeState.documents[docId]);
       state.doc = doc;
-      state.CMService.setValue(doc.content);
+      loadDoc = true;
     } else {
-      doc = new Document.Document(docId, docTitle, 'comicbook')
+      doc = new Document.Document(docId, docTitle, 'vanlenteComicbook');
       rendererStore.dispatch(actions.addDoc(doc));
     }
-
     state.doc = doc;
+    state.CMService = new CMService.CMService(dom, state);
+
+    if (loadDoc) {
+      state.CMService.setValue(doc.content);
+    }
+
     state.CMService.focus();
     state.CMService.registerEvents(state);
   },

@@ -1,0 +1,42 @@
+@media print {
+    .cm-vlc-page-wrapper {
+      page-break-before: always !important;
+    }
+}
+
+.cm-vlc-page {
+  display: inline-block;
+  text-decoration: underline;
+  font-weight: bold;
+  font-size: 1.25em;
+}
+
+.cm-vlc-character {
+  /*display: inline-block;*/
+  width: 30%;
+}
+
+.cm-vlc-panel-wrapper, .cm-vlc-action-wrapper {
+  padding-top: 0.83em !important;
+  padding-bottom: 0.83em !important;
+}
+
+.cm-vlc-character-wrapper, .cm-vlc-dialogue-wrapper {
+  padding-top: 0.25em !important;
+  padding-bottom: 0.25em !important;
+}
+
+.cm-vlc-panel {
+  font-weight: bold;
+}
+
+/*.cm-vlc-dialogue {
+  display: inline-block;
+  width: 70%;
+  float: right;
+}
+*/
+.CodeMirror pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}

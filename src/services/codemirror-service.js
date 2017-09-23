@@ -1,7 +1,9 @@
+require('codemirror/addon/runmode/runmode.js');
+require('codemirror/addon/mode/simple.js');
 var CodeMirror = require('codemirror');
 var Document = require('../models/document');
 var m = require('mithril');
-
+var customModes = require('../custom-codemirror-modes');
 
 module.exports = {
   CMService
@@ -15,10 +17,18 @@ var cmOptions = {
     pollInterval: 100
 };
 
+for (var mo in customModes) {
+  var mode = customModes[mo];
+  CodeMirror.defineSimpleMode(mode.meta.name, mode);
+}
+
 function CMService(dom, state) {
+  cmOptions.mode = state.doc.type;
   var instance = {
     editor: CodeMirror(dom, cmOptions),
     state: state,
+    longestCharacerTag: null,
+    logCharTagChange: null,
     focus: function() {
       var self = this;
       self.editor.focus();
@@ -34,8 +44,8 @@ function CMService(dom, state) {
       // self.editor.on('blur', self.handleBlur.bind(self));
       self.editor.on('focus', self.handleFocus.bind(self));
       self.editor.on('changes', self.handleChanges.bind(self));
-      // self.editor.on('renderLine', self.handleRenderLine.bind(self));
-      // self.editor.on('update', self.handleUpdate.bind(self));
+      self.editor.on('renderLine', self.handleRenderLine.bind(self));
+      self.editor.on('update', self.handleUpdate.bind(self));
       self.editor.on('cursorActivity', self.handleCursorActivity.bind(self));
     },
     handleChanges: function (c, change) {
@@ -87,6 +97,52 @@ function CMService(dom, state) {
           state.cursors[cursor] = document.getElementById(cursor).cloneNode(true);
         }
         cm.setBookmark(cursorData, {widget: state.cursors[cursor]})
+      }
+    },
+    handleUpdate: function (instance) {
+      var self = this;
+      if (self.logCharTagChange) {
+        self.logCharTagChange = null;
+        instance.refresh();
+      }
+    },
+    handleRenderLine: function (instance, line, element) {
+      var self = this, characters = [], longestCharacterTag = null;
+
+      CodeMirror.runMode(instance.getValue(), self.state.doc.type, function (text, style) {
+        if (style === 'vlc-character') {
+          if (text.length > longestCharacterTag) {
+            longestCharacterTag = text.length;
+          }
+        }
+      });
+
+      // Iterate over the styles for each line, and apply wrapper classes for all found tokens
+      // angular.forEach(line.styles, function (style) {
+      for (var s in line.styles) {
+        var style = line.styles[s];
+        if (typeof style === 'string' && style.indexOf('-wrapper') === -1) {
+          var lineInfo = self.editor.lineInfo(line);
+          var currentTokens = self.editor.getLineTokens(lineInfo.line);
+
+          for (var ct in currentTokens) {
+            var token = currentTokens[ct];
+            element.className += ' cm-' + token.type + '-wrapper';
+            if (token.type === 'vlc-character') {
+              var characterTagLength = token.string.length;
+              if (longestCharacterTag !== self.longestCharacerTag) {
+                self.longestCharacerTag = longestCharacterTag
+                self.logCharTagChange = true;
+              }
+
+              var dialoguePadding = longestCharacterTag - characterTagLength,
+              dialogueEl = element.getElementsByClassName("cm-vlc-dialogue")[0];
+              if (dialogueEl) {
+                dialogueEl.style.paddingLeft = dialoguePadding + '.1ch';
+              }
+            }
+          }
+        }
       }
     }
   }
