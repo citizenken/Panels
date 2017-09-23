@@ -1,22 +1,15 @@
 var m = require('mithril')
 var Sidebar = require('./sidebar')
-var CodeMirror = require('codemirror')
+// var CodeMirror = require('codemirror')
 var Immutable = require('seamless-immutable');
 var Document = require('../models/document');
 var actions = require('../state/actions/actions');
 var rendererStore = require('../rendererStore');
+var CMService = require('../services/codemirror-service')
 var url = require('url');
 var querystring = require('querystring');
 var queryParams = querystring.parse(url.parse(window.location.href).query);
 var root = document.body;
-
-var cmOptions = {
-    lineWrapping : true,
-    lineNumbers: false,
-    singleCursorHeightPerLine: false,
-    autofocus: true,
-    pollInterval: 100
-};
 
 var stateData = rendererStore.getState();
 var unsubscribe = rendererStore.subscribe(function() {
@@ -41,19 +34,20 @@ module.exports = Page = {
     var storeState = rendererStore.getState(),
         docId = queryParams.docId,
         docTitle = queryParams.docTitle;
-    state.cm = CodeMirror(dom, cmOptions);
+    state.CMService = new CMService.CMService(dom, state);
     console.log(storeState.documents);
     if (Object.keys(storeState.documents).indexOf(docId) > -1) {
       doc = Immutable(storeState.documents[docId]);
-      setCodeMirrorValue(state, doc);
+      state.doc = doc;
+      state.CMService.setValue(doc.content);
     } else {
       doc = new Document.Document(docId, docTitle, 'comicbook')
       rendererStore.dispatch(actions.addDoc(doc));
     }
 
     state.doc = doc;
-    state.cm.focus();
-    registerCodeMirrorEvents(state);
+    state.CMService.focus();
+    state.CMService.registerEvents(state);
   },
   onupdate: function({state, attrs, dom}) {
     if (state.doc) {
@@ -62,74 +56,15 @@ module.exports = Page = {
           stateDoc = documents[state.doc.id],
           localDoc = state.doc;
       if (Document.hasRemoteContentUpdated(localDoc, stateDoc)) {
-        setCodeMirrorValue(state, stateDoc);
+        state.doc = doc;
+        state.CMService.setValue(stateDoc.content);
       }
     }
-    setCollabCursors(state, stateData.currentDocument.collabCursors);
+    state.CMService.setCollabCursors(stateData.currentDocument.collabCursors);
   },
   view: function() {
     return m(".page");
   }
 }
-
-function setCodeMirrorValue(state, doc) {
-  state.doc = doc;
-  state.cm.setValue(doc.content);
-  state.cm.refresh();
-}
-
-function registerCodeMirrorEvents(state) {
-  state.cm.on('changes', function (c, change) {
-    if (c.getValue() !== state.doc.content) {
-      state.doc = Document.updateOnCMChange(state.doc, c, change);
-      Document.emitChanges(state.doc);
-    }
-  });
-
-  state.cm.on('focus', function (c, change) {
-    Document.upateCursorLocation(c);
-    if (rendererStore.getState().currentDocument.id !== state.doc.id) {
-      Document.setAsCurrentDoc(state.doc.id, c);
-    }
-  });
-
-  state.cm.on('cursorActivity', function (c) {
-    Document.upateCursorLocation(c);
-  });
-}
-
-function setCollabCursors(state, cursors) {
-  var cm = state.cm,
-      updatedCursorKeys = Object.keys(cursors),
-      stateCursorKeys = Object.keys(state.cursors),
-      allMarks = cm.getAllMarks();
-
-  // clear all existing marks
-  for (var i in allMarks) {
-    allMarks[i].clear();
-  }
-
-  // clear out a user's cursor element if it isn't in the stateData anymore
-  for (var key in stateCursorKeys) {
-    var collabId = stateCursorKeys[key];
-    if (updatedCursorKeys.indexOf(collabId) === -1) {
-      delete state.cursors[collabId]
-    }
-  }
-
-  for (var cursor in cursors) {
-    var cursorData = cursors[cursor];
-    if (!state.cursors[cursor]) {
-      var cursorColor = 'blue',
-          cursorEl = m('div.collab-cursor#' + cursor, [
-            m('div.cursor', {style: 'border-color:' + cursorColor})
-            ]);
-      m.render(document.getElementById('cursor_mount'), cursorEl);
-      state.cursors[cursor] = document.getElementById(cursor).cloneNode(true);
-    }
-    cm.setBookmark(cursorData, {widget: state.cursors[cursor]})
-  }
-}
-
 
 m.mount(root, Workspace)
