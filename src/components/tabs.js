@@ -32,7 +32,7 @@ module.exports = Tabs = {
   },
  onupdate: function({state, attrs, dom}) {
     var activeTabId = state.tabGroup.getActiveTab(),
-        currentDoc = attrs.stateData.currentDocument.id
+        currentDoc = attrs.stateData.currentDocument,
         tabs = state.tabs;
 
     if (currentDoc) {
@@ -96,7 +96,7 @@ function addTab(state, docId, loadedDoc) {
 }
 
 function openLastDoc(state, stateData) {
-  var currentDoc = stateData.currentDocument.id;
+  var currentDoc = stateData.currentDocument;
   if (currentDoc) {
     if (Object.keys(stateData.documents).indexOf(currentDoc) > -1 &&
         Object.keys(state.tabs).indexOf(currentDoc) == -1) {
@@ -130,16 +130,20 @@ function registerTabGroupEvents(state) {
   });
 
   state.tabGroup.on("tab-removed", function(tab, tabGroup) {
-    var closedDocument = null;
+    var closedDocument = null,
+        newActiveTab = tabGroup.getActiveTab(),
+        newActiveDocID = '';
     for (var docTab in state.tabs) {
       if (state.tabs[docTab] === tab.id) {
         closedDocument = docTab;
         delete state.tabs[docTab];
+      } else if (state.tabs[docTab] === newActiveTab.id) {
+        newActiveDocID = docTab;
       }
     }
 
-    if (rendererStore.getState().currentDocument.id === closedDocument) {
-      rendererStore.dispatch(actions.changeCurrentDoc(''));
+    if (rendererStore.getState().currentDocument === closedDocument) {
+      rendererStore.dispatch(actions.changeCurrentDoc(newActiveDocID));
     }
   });
 }

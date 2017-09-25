@@ -29,6 +29,7 @@
   "dependencies": {
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
+    "bootstrap": "^3.3.7",
     "codemirror": "^5.28.0",
     "deep-equal": "^1.0.1",
     "dragula": "^3.7.2",

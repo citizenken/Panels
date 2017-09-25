@@ -12,7 +12,7 @@ module.exports = Sidebar = {
 
       for (var prop in attrs.stateData.documents) {
         var doc = attrs.stateData.documents[prop];
-        elements.push(m('li', [
+        elements.push(m('li.list-group-item', [
           m('button', {
             onclick: m.withAttr('value', changeDoc),
             value: doc.id
@@ -30,7 +30,7 @@ module.exports = Sidebar = {
       style: "width:" + width
     }, [
       m("div.bar-content", [
-        m('ul', elements)
+        m('ul.list-group', elements)
         ]),
       m("div.draggable", {onmousedown: function(e) {onMousedown(state, e)}})
     ]);

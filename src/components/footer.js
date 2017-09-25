@@ -2,7 +2,8 @@ var m = require("mithril")
 
 module.exports = Footer = {
   view: function({state, attrs, dom}) {
-    var cursorPos = attrs.stateData.currentDocument.currentCursorPosition,
+    var currentDoc = attrs.stateData.currentDocument,
+        cursorPos = attrs.stateData.cursors[currentDoc].currentCursorPosition,
         positionText = '';
         console.log(cursorPos)
     if (cursorPos) {

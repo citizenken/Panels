@@ -57,8 +57,8 @@ function CMService(dom, state) {
     },
     handleFocus: function (c, change) {
       var state = this.state;
-      Document.upateCursorLocation(c);
-      if (rendererStore.getState().currentDocument.id !== state.doc.id) {
+      Document.upateCursorLocation(c, state.doc.id);
+      if (rendererStore.getState().currentDocument !== state.doc.id) {
         Document.setAsCurrentDoc(state.doc.id, c);
       }
     },

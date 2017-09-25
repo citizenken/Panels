@@ -97,7 +97,7 @@ module.exports = firebaseService = {
   },
   detectFileChanges: function(snapshot) {
     var updated = Immutable(snapshot.val())
-    storedDoc = mainStore.getState().documents[updated.id];
+        storedDoc = mainStore.getState().documents[updated.id];
 
     if (Document.hasRemoteContentUpdated(storedDoc, updated)) {
       mainStore.dispatch(actions.updateDoc(updated));
@@ -162,14 +162,17 @@ module.exports = firebaseService = {
       self.updateCollabCursor(snapshot);
     });
     query.on('child_removed', function(snapshot) {
-      mainStore.dispatch(actions.removeCollabCursor(snapshot.val().id));
+      var collab = snapshot.val();
+      if (collab.id !== self.firebaseUser.id) {
+        mainStore.dispatch(actions.removeCollabCursor(collab.id, docID));
+      }
     });
   },
   updateCollabCursor: function(snapshot) {
     var self = this,
         collab = snapshot.val();
     if (collab.id !== self.firebaseUser.id) {
-      mainStore.dispatch(actions.collabCursorUpdate(collab.id, collab.currentFile.currentCursorPosition));
+      mainStore.dispatch(actions.collabCursorUpdate(collab.id, collab.currentFile.currentCursorPosition, collab.currentFile.id));
     }
   }
 }

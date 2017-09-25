@@ -64,7 +64,10 @@ module.exports = Page = {
         state.CMService.setValue(stateDoc.content);
       }
     }
-    state.CMService.setCollabCursors(stateData.currentDocument.collabCursors);
+
+    if (stateData.cursors[stateDoc.id].collabCursors) {
+      state.CMService.setCollabCursors(stateData.cursors[stateDoc.id].collabCursors);
+    }
   },
   view: function() {
     return m(".page");

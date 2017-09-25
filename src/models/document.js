@@ -85,11 +85,11 @@ function setAsCurrentDoc(docID, cm) {
   firebaseService.getCurrentCollaboratorCursors(docID);
   stateStore.dispatch(actions.changeCurrentDoc(docID));
   if (cm) {
-    upateCursorLocation(cm);
+    upateCursorLocation(cm, docID);
   }
 }
 
-function upateCursorLocation(cm) {
+function upateCursorLocation(cm, docID) {
   var rawCursor = cm.getCursor();
   console.log(rawCursor)
   var cursor = {
@@ -97,5 +97,5 @@ function upateCursorLocation(cm) {
         ch: rawCursor.ch
       };
   firebaseService.updateUserCursor(cursor);
-  stateStore.dispatch(actions.userCursorUpdate(cursor));
+  stateStore.dispatch(actions.userCursorUpdate(cursor, docID));
 }

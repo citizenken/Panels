@@ -75,24 +75,27 @@ function resizeSidebar(newWidth) {
   }
 }
 
-function userCursorUpdate(cursor) {
+function userCursorUpdate(cursor, docID) {
   return {
     type: actionTypes.USER_CURSOR_UPDATE,
-    cursor: cursor
+    cursor: cursor,
+    docID: docID
   }
 }
 
-function collabCursorUpdate(collabID, cursor) {
+function collabCursorUpdate(collabID, cursor, docID) {
   return {
     type: actionTypes.COLLAB_USER_CURSOR_UPDATE,
     collabID: collabID,
-    cursor: cursor
+    cursor: cursor,
+    docID: docID
   }
 }
 
-function removeCollabCursor(collabID) {
+function removeCollabCursor(collabID, docID) {
   return {
     type: actionTypes.REMOVE_COLLAB_USER_CURSOR,
-    collabID: collabID
+    collabID: collabID,
+    docID: docID
   }
 }
