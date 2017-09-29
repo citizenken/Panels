@@ -33,3 +33,20 @@
   display: table;
   clear: both;
 }
+
+.list-group {
+  white-space: nowrap !important;
+}
+
+.show-details {
+  float: right;
+  display: none;
+}
+
+.list-group-item:hover .show-details {
+  display: inline-block;
+}
+
+input[type="button"]:focus {
+  outline: none;
+}

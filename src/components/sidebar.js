@@ -12,13 +12,10 @@ module.exports = Sidebar = {
 
       for (var prop in attrs.stateData.documents) {
         var doc = attrs.stateData.documents[prop];
-        elements.push(m('li.list-group-item', [
-          m('button', {
+        elements.push(m('button.list-group-item', {
             onclick: m.withAttr('value', changeDoc),
             value: doc.id
-          }, doc.title)
-          ])
-        );
+          }, doc.title));
       }
     }
     var width = undefined;
@@ -30,7 +27,7 @@ module.exports = Sidebar = {
       style: "width:" + width
     }, [
       m("div.bar-content", [
-        m('ul.list-group', elements)
+        m('div.list-group', elements)
         ]),
       m("div.draggable", {onmousedown: function(e) {onMousedown(state, e)}})
     ]);
