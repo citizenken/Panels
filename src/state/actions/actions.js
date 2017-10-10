@@ -12,7 +12,9 @@ module.exports = {
   resizeSidebar,
   userCursorUpdate,
   collabCursorUpdate,
-  removeCollabCursor
+  removeCollabCursor,
+  showDetails,
+  hideDetails
 }
 
 
@@ -96,6 +98,20 @@ function removeCollabCursor(collabID, docID) {
   return {
     type: actionTypes.REMOVE_COLLAB_USER_CURSOR,
     collabID: collabID,
+    docID: docID
+  }
+}
+
+function showDetails(docID) {
+  return {
+    type: actionTypes.SHOW_DETAILS,
+    docID: docID
+  }
+}
+
+function hideDetails(docID) {
+  return {
+    type: actionTypes.HIDE_DETAILS,
     docID: docID
   }
 }

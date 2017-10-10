@@ -1,3 +1,7 @@
+.etabs-tab {
+  height: inherit;
+}
+
 .etabs-tab.just-added {
   top: 22px;
   height: 0px !important;

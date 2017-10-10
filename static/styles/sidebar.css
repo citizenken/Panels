@@ -9,7 +9,7 @@
 
 .bar-content {
   width: calc(100% - 3px);
-  overflow-x: scroll;
+  /*overflow-x: scroll;*/
   height: 100%;
 }
 
@@ -41,12 +41,21 @@
 .show-details {
   float: right;
   display: none;
+  font-size: medium;
+  margin-top: 2px;
+  margin-left: 5px;
 }
 
-.list-group-item:hover .show-details {
+.file-button:hover .show-details {
   display: inline-block;
 }
 
-input[type="button"]:focus {
+.file-button {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-button:focus {
   outline: none;
 }

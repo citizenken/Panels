@@ -4,6 +4,8 @@
 	<title></title>
 	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
   <link rel="stylesheet" href="../node_modules/electron-tabs/electron-tabs.css">
+  <!-- <link rel="stylesheet" href="../node_modules/choices.js/assets/styles/css/base.min.css"> -->
+  <link rel="stylesheet" href="../node_modules/choices.js/assets/styles/css/choices.min.css">
   <link rel="stylesheet" href="styles/tabs.css">
   <link rel="stylesheet" href="styles/sidebar.css">
     <style type="text/css">
@@ -29,6 +31,39 @@
         body {
           margin: 0 0 0 0;
           overflow: hidden;
+        }
+
+        .section-container {
+          padding: 15px;
+        }
+
+        .edit-title {
+          margin-top: 20px;
+          margin-bottom: 10px;
+          width: 100%;
+        }
+
+        .detail-list .list-group-item {
+          border: none !important;
+        }
+
+        .edit-title input {
+          border-radius: 4px !important;
+          font-size: x-large;
+          font-weight: bold;
+        }
+
+        .overlay {
+            /* Height & width depends on how you want to reveal the overlay (see JS below) */
+            height: 0%;
+            width: 100%;
+            position: fixed; /* Stay in place */
+            z-index: 5; /* Sit on top */
+            left: 0;
+            top: 0;
+            background-color: rgba(255,255,255, 0.9); /* Black w/opacity */
+            overflow-x: hidden; /* Disable horizontal scroll */
+            transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
         }
     </style>
 </head>

@@ -59,9 +59,12 @@ module.exports = Page = {
           documents = stateData.documents,
           stateDoc = documents[state.doc.id],
           localDoc = state.doc;
-      if (Document.hasRemoteContentUpdated(localDoc, stateDoc)) {
-        state.doc = doc;
-        state.CMService.setValue(stateDoc.content);
+          localRemoteDiff = Document.getRemoteFileDiff(localDoc, stateDoc);
+      if (localRemoteDiff.length > 0) {
+        state.doc = stateDoc;
+        if (localRemoteDiff.indexOf('content') > -1) {
+          state.CMService.setValue(stateDoc.content);
+        }
       }
     }
 

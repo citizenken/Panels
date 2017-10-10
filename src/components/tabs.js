@@ -2,7 +2,7 @@ var m = require("mithril");
 var path = require('path');
 var querystring = require('querystring');
 var randomstring = require("randomstring");
-const TabGroup = require("electron-tabs");
+var TabGroup = require("electron-tabs");
 var dragula = require("dragula");
 var rendererStore = require('../rendererStore');
 var actions = require('../state/actions/actions');
@@ -110,11 +110,14 @@ function openLastDoc(state, stateData) {
 function updateTabTitles(state, stateData) {
   for (var docTabId in state.tabs) {
     var docTab = state.tabs[docTabId],
-        tab = state.tabGroup.getTab(docTab),
-        tabTitle = tab.getTitle(),
-        docTitle = stateData.documents[docTabId].title;
-    if (tabTitle !== docTitle) {
-      tab.setTitle(docTitle);
+        tab = state.tabGroup.getTab(docTab);
+
+    if (tab) {
+      tabTitle = tab.getTitle(),
+      docTitle = stateData.documents[docTabId].title;
+      if (tabTitle !== docTitle) {
+        tab.setTitle(docTitle);
+      }
     }
   }
 }

@@ -3,6 +3,8 @@ var Immutable = require('seamless-immutable');
 var actions = require('../state/actions/actions');
 var stateStore = undefined;
 var deepEqual = require('deep-equal');
+var ddiff = require('deep-diff');
+
 if (process.type !== 'browser') {
   stateStore = require('../rendererStore');
   var firebaseService = require('electron').remote.getGlobal('firebaseService');
@@ -14,7 +16,7 @@ module.exports = {
   Document,
   updateOnCMChange,
   emitChanges,
-  hasRemoteContentUpdated,
+  getRemoteFileDiff,
   setAsCurrentDoc,
   upateCursorLocation
 }
@@ -60,8 +62,8 @@ function updateOnCMChange(doc, c, change) {
     updated = Immutable.set(updated, 'title', updated.content.substring(0,10));
   }
 
-  // stateStore.dispatch(actions.updateDoc(updated));
-  // firebaseService.updateRemoteFile(updated);
+  stateStore.dispatch(actions.updateDoc(updated));
+  firebaseService.updateRemoteFile(updated);
   return updated;
 };
 
@@ -70,14 +72,20 @@ function emitChanges(updated) {
   firebaseService.writeRemoteFile(updated);
 }
 
-function hasRemoteContentUpdated(local, remote) {
+function getRemoteFileDiff(local, remote) {
   if (local && remote && !deepEqual(local, remote)) {
-    if (local.modifiedOn < remote.modifiedOn &&
-      local.content !== remote.content) {
-      return true;
-    }
+    var diff = ddiff(local, remote),
+        changes = diff.map(function(d) {
+          var c = [];
+          for (var p in d.path) {
+            c.push(d.path[p]);
+          }
+          return c;
+        });
+
+    return [].concat.apply([], changes);
   }
-  return false;
+  return [];
 }
 
 function setAsCurrentDoc(docID, cm) {

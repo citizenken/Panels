@@ -12,10 +12,7 @@ module.exports = Sidebar = {
 
       for (var prop in attrs.stateData.documents) {
         var doc = attrs.stateData.documents[prop];
-        elements.push(m('button.list-group-item', {
-            onclick: m.withAttr('value', changeDoc),
-            value: doc.id
-          }, doc.title));
+        elements.push(m(FileItem, {doc: doc}));
       }
     }
     var width = undefined;
@@ -34,6 +31,28 @@ module.exports = Sidebar = {
   }
 }
 
+var FileItem = {
+  view: function({state, attrs, dom}) {
+    return m('button.list-group-item.file-button', {
+      onclick: m.withAttr('value', changeDoc),
+      value: attrs.doc.id
+    }, [
+    m('span.glyphicon.glyphicon-info-sign.show-details', {
+      onclick: function(e) {
+        e.stopPropagation();
+        rendererStore.dispatch(actions.showDetails(attrs.doc.id));
+      }
+    })
+    ], attrs.doc.title);
+  }
+}
+
+function changeDoc(docId) {
+  Document.setAsCurrentDoc(docId);
+}
+
+
+
 function onMousedown(state, event) {
   var minWidth = 3;
   var mousemoveHandler = function(event) {
@@ -51,8 +70,4 @@ function onMousedown(state, event) {
 
   document.addEventListener('mousemove', mousemoveHandler, false);
   document.addEventListener('mouseup', mouseupHandler, false);
-}
-
-function changeDoc(docId) {
-  Document.setAsCurrentDoc(docId);
 }

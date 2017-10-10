@@ -99,7 +99,7 @@ module.exports = firebaseService = {
     var updated = Immutable(snapshot.val())
         storedDoc = mainStore.getState().documents[updated.id];
 
-    if (Document.hasRemoteContentUpdated(storedDoc, updated)) {
+    if (Document.getRemoteFileDiff(storedDoc, updated).length > 0) {
       mainStore.dispatch(actions.updateDoc(updated));
     }
   },
@@ -174,6 +174,59 @@ module.exports = firebaseService = {
     if (collab.id !== self.firebaseUser.id) {
       mainStore.dispatch(actions.collabCursorUpdate(collab.id, collab.currentFile.currentCursorPosition, collab.currentFile.id));
     }
+  },
+  getUser: function(userID) {
+    return firebase.database().ref('/users/' + userID)
+            .once('value')
+            .then(function(userSnapshot) {
+              return userSnapshot.val();
+            });
+  },
+  getCollaborators: function(doc) {
+    var collabs = Object.keys(doc.collaborators),
+        promises = [];
+    for (var c in collabs) {
+      var promise = firebase.database().ref('/users/' + collabs[c])
+        .once('value')
+        .then(function(userSnapshot) {
+          return userSnapshot.val();
+        });
+      promises.push(promise);
+    }
+    return Promise.all(promises)
+            .then(function(values) {
+              var fullCollabs = {};
+              for (var v in values) {
+                var collab = values[v];
+                fullCollabs[collab.id] = collab;
+              }
+              return fullCollabs;
+            });
+  },
+  searchForCollab: function(searchTerm, callback) {
+    var users = {};
+
+    var query = firebase.database().ref('/users')
+      .orderByChild('username')
+      .startAt(searchTerm);
+
+    query.on('child_added', callback);
+  },
+  addCollaborators: function(collaborators, collabRole, docID) {
+    var promises = [];
+    for (var c in collaborators) {
+      var collab = collaborators[c];
+      var collabFilePromise = firebase.database().ref('/users/' + collab + '/collabFiles/' + docID).set(collabRole)
+        .then(function() {
+          console.log('Collab ' + collab + ' given ' + collabRole + ' to ' + docID);
+        });
+      var fileCollabPromise = firebase.database().ref('/files/' + docID + '/collaborators/' + collab).set(collabRole)
+        .then(function() {
+          console.log('Collab ' + collab + ' added to ' + docID + ' as ' + collabRole);
+        });
+      promises.push(collabFilePromise, fileCollabPromise);
+    }
+    return Promise.all(promises);
   }
 }
 
