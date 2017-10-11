@@ -3,6 +3,7 @@ var Tabs = require('./tabs')
 var Sidebar = require('./sidebar')
 var Footer = require('./footer')
 var Details = require('./details')
+var Preferences = require('./preferences')
 var rendererStore = require('../rendererStore');
 var config = require('electron').remote.getGlobal('config');
 
@@ -16,15 +17,19 @@ var unsubscribe = rendererStore.subscribe(function() {
 
 var Main = {
   view: function() {
-    var detailsEl = undefined;
+    var overlayEl = undefined;
+
     if (stateData.showDetails) {
-      detailsEl = m(Details, {stateData: stateData,});
+      overlayEl = m(Details, {stateData: stateData,});
     }
 
+    if (stateData.preferences) {
+      overlayEl = m(Preferences, {stateData: stateData,});
+    }
 
     return m(".main", [
       m(Sidebar, {stateData: stateData}),
-      detailsEl,
+      overlayEl,
       m(Tabs, {stateData: stateData})
       ]);
   }

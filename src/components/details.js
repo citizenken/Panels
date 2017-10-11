@@ -76,7 +76,7 @@ function generateDetails(state, stateData, display) {
       );
   }
 
-  return m('div.overlay', {style: display}, [
+  return m('div.overlay', [
     m('div.container.section-container', [
       m('div.row', [
         m('div.col-md-3', [
