@@ -27,7 +27,8 @@ function onClosed() {
 function createMainWindow() {
   const win = new electron.BrowserWindow({
     width: 600,
-    height: 400
+    height: 400,
+    show: false
   });
 
   var url = 'file://' + path.resolve(__dirname, '..', 'static', 'main.html')
@@ -45,6 +46,9 @@ function createMainWindow() {
       firebaseService.signIn()
       .then(function (user) {
         return firebaseService.loadUserFiles(user);
+      })
+      .then(function(files) {
+        mainStore.dispatch(actions.hideOverlay());
       });
     }
   })
@@ -52,6 +56,11 @@ function createMainWindow() {
     console.log('this is an error', error)
     console.info('No internet access, not loading firebase')
   });
+
+  win.once('ready-to-show', function() {
+    mainStore.dispatch(actions.showLoading());
+    win.show();
+  })
 
   return win;
 }
@@ -69,5 +78,6 @@ app.on('activate', () => {
 });
 
 app.on('ready', () => {
+  var menu = require('./menu')
   mainWindow = createMainWindow();
 });

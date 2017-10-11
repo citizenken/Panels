@@ -25,7 +25,7 @@ module.exports = Collaborators = {
   },
   view: function({state, attrs, dom}) {
     var collabRows = undefined,
-        doc = attrs.stateData.documents[attrs.stateData.showDetails];
+        doc = attrs.stateData.documents[attrs.stateData.overlay.data];
         collaborators = attrs.docDetails.collaborators;
 
     var crElements = [];
@@ -164,7 +164,7 @@ function onSaveCollaborators(e, state, doc) {
 
 function handleFirebaseCollabSearch(event, state, attrs) {
   var collaborators = attrs.docDetails.collaborators,
-      doc = attrs.stateData.documents[attrs.stateData.showDetails];
+      doc = attrs.stateData.documents[attrs.stateData.overlay.data];
 
   firebaseService.searchForCollab(event.detail.value, function(snapshot) {
     var user = snapshot.val(),

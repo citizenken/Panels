@@ -17,7 +17,7 @@ module.exports = Details = {
   selectedSection: 'General',
   docDetails: {},
   oninit: function ({state, attrs, dom}) {
-    var doc = attrs.stateData.documents[attrs.stateData.showDetails];
+    var doc = attrs.stateData.documents[attrs.stateData.overlay.data];
         promises = [];
 
     promises.push(firebaseService.getUser(doc.author)
@@ -37,7 +37,7 @@ module.exports = Details = {
       });
   },
   onupdate: function({state, attrs, dom}) {
-    var doc = attrs.stateData.documents[attrs.stateData.showDetails];
+    var doc = attrs.stateData.documents[attrs.stateData.overlay.data];
     if (doc.collaborators && Object.keys(doc.collaborators).length > 0) {
       firebaseService.getCollaborators(doc)
       .then(function(collaborators) {
@@ -47,17 +47,11 @@ module.exports = Details = {
     }
   },
   view: function({state, attrs, dom}) {
-    var display = 'height:0%';
-    if (attrs.stateData.showDetails) {
-      display = 'height:100%';
-      return generateDetails(state, attrs.stateData, display);
-    } else {
-      return m('div.overlay');
-    }
+    return generateDetails(state, attrs.stateData);
   }
 }
 
-function generateDetails(state, stateData, display) {
+function generateDetails(state, stateData) {
   var menuElements = [],
       section = undefined;
 
@@ -76,8 +70,7 @@ function generateDetails(state, stateData, display) {
       );
   }
 
-  return m('div.overlay', [
-    m('div.container.section-container', [
+  return  m('div.container.section-container', [
       m('div.row', [
         m('div.col-md-3', [
           m('div.list-group', menuElements)
@@ -85,15 +78,14 @@ function generateDetails(state, stateData, display) {
         m('div.col-md-8', section),
         m('div.col-md-1', [
           m('span.glyphicon.glyphicon-remove', {
-            role: 'button',
-            onclick: function() {
-              rendererStore.dispatch(actions.hideDetails());
-            }
-          })
+              role: 'button',
+              onclick: function() {
+                rendererStore.dispatch(actions.hideOverlay());
+              }
+            })
           ]),
         ]),
-      ])
-    ]);
+      ]);
 }
 
 function generateSelectedSection(state, stateData) {

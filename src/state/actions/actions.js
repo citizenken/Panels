@@ -14,7 +14,9 @@ module.exports = {
   collabCursorUpdate,
   removeCollabCursor,
   showDetails,
-  hideDetails
+  showPreferences,
+  hideOverlay,
+  showLoading
 }
 
 
@@ -109,9 +111,20 @@ function showDetails(docID) {
   }
 }
 
-function hideDetails(docID) {
+function showPreferences() {
   return {
-    type: actionTypes.HIDE_DETAILS,
-    docID: docID
+    type: actionTypes.SHOW_PREFERENCES,
+  }
+}
+
+function showLoading() {
+  return {
+    type: actionTypes.SHOW_LOADING,
+  }
+}
+
+function hideOverlay() {
+  return {
+    type: actionTypes.HIDE_OVERLAY,
   }
 }

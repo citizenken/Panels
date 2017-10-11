@@ -7,6 +7,7 @@
   <!-- <link rel="stylesheet" href="../node_modules/choices.js/assets/styles/css/base.min.css"> -->
   <link rel="stylesheet" href="../node_modules/choices.js/assets/styles/css/choices.min.css">
   <link rel="stylesheet" href="styles/tabs.css">
+  <link rel="stylesheet" href="styles/loader.css">
   <link rel="stylesheet" href="styles/sidebar.css">
     <style type="text/css">
         html, body {
@@ -64,6 +65,20 @@
             background-color: rgba(255,255,255, 0.97); /* Black w/opacity */
             overflow-x: hidden; /* Disable horizontal scroll */
             transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
+        }
+
+        .loading {
+          background-color: #bb2f2b;
+          color: #fff;
+          text-align: center;
+          height: 100%;
+        }
+
+        .loading h3 {
+          position: relative;
+          top: 50%;
+          /*transform: translateY(-50%);*/
+          /*margin-top: 75px;*/
         }
     </style>
 </head>

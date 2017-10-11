@@ -4,6 +4,7 @@ var Sidebar = require('./sidebar')
 var Footer = require('./footer')
 var Details = require('./details')
 var Preferences = require('./preferences')
+var Loading = require('./loading')
 var rendererStore = require('../rendererStore');
 var config = require('electron').remote.getGlobal('config');
 
@@ -17,21 +18,32 @@ var unsubscribe = rendererStore.subscribe(function() {
 
 var Main = {
   view: function() {
-    var overlayEl = undefined;
+    var overlayEl = undefined,
+        overlayCSS = {
+          height: '0%'
+        };
 
-    if (stateData.showDetails) {
-      overlayEl = m(Details, {stateData: stateData,});
+    if (stateData.overlay.type) {
+      overlayCSS.height = '100%';
     }
 
-    if (stateData.preferences) {
-      overlayEl = m(Preferences, {stateData: stateData,});
+    if (stateData.overlay.type === 'preferences') {
+      overlayEl = m(Preferences, {stateData: stateData});
+    } else if (stateData.overlay.type === 'loading') {
+      overlayCSS.transition = 'none';
+      overlayCSS['background-color'] = '#bb2f2b';
+      overlayEl = m(Loading, {stateData: stateData});
+    } else if (stateData.overlay.type === 'details') {
+      overlayEl = m(Details, {stateData: stateData});
     }
 
     return m(".main", [
       m(Sidebar, {stateData: stateData}),
-      overlayEl,
+      m('div.overlay', {style: overlayCSS}, [
+        overlayEl
+        ]),
       m(Tabs, {stateData: stateData})
-      ]);
+      ])
   }
 }
 

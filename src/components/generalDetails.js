@@ -5,7 +5,7 @@ module.exports = GeneralDetails = {
   editTitle: undefined,
   view: function({state, attrs, dom}) {
     var titleElement = 'h2',
-        doc = attrs.stateData.documents[attrs.stateData.showDetails],
+        doc = attrs.stateData.documents[attrs.stateData.overlay.data],
         authorName = undefined;
 
     if (state.editTitle) {
