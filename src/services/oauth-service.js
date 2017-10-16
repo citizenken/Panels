@@ -2,10 +2,10 @@ var electron = require('electron');
 var BrowserWindow = require('electron').BrowserWindow || require('electron').remote.BrowserWindow;
 var mainStore = require('../mainStore.js');
 var axios = require('axios');
-var oauthRoot = "http://localhost:5000" //mainStore.getState().sysConfig.oauthRoot,
-    redirectUri = oauthRoot + '/callback', // jscs:disable
+var oauthRoot = mainStore.getState().sysConfig.oauthRoot,
+    redirectUri = oauthRoot + 'callback', // jscs:disable
     authEndPoint = oauthRoot,
-    logOutEndpoint = oauthRoot + '/logout';
+    logOutEndpoint = oauthRoot + 'logout';
 
 module.exports = {
   authWindow: null,

@@ -31,9 +31,14 @@ module.exports = Tabs = {
     registerTabGroupEvents(state);
   },
  onupdate: function({state, attrs, dom}) {
-    var activeTabId = state.tabGroup.getActiveTab().id,
+    var activeTab = state.tabGroup.getActiveTab(),
+        activeTabId = undefined,
         currentDoc = attrs.stateData.currentDocument,
         tabs = state.tabs;
+
+    if (activeTab) {
+      activeTabId = activeTab.id
+    }
 
     if (currentDoc) {
       if (Object.keys(tabs).indexOf(currentDoc) == -1){

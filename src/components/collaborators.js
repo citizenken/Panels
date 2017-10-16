@@ -72,6 +72,16 @@ var UpdateRoleButton = {
   }
 }
 
+var RemoveCollabButton = {
+  view: function({state, attrs, dom}) {
+    attrs.role = 'button'
+    attrs.onclick = function() {
+      firebaseService.removeCollaborators(attrs.collabID, attrs.docID)
+    }
+    return m('span.glyphicon.glyphicon-remove', attrs)
+  }
+}
+
 function initializeChoicesSelect(state, attrs, dom) {
     var collabChoices = [];
 
@@ -88,6 +98,7 @@ function initializeChoicesSelect(state, attrs, dom) {
     state.choices.passedElement.addEventListener('addItem', function(event) {
       state.selectedCollaborators[event.detail.value] = event.detail;
       state.choices.hideDropdown()
+      m.redraw();
     }, false);
 
     state.choices.passedElement.addEventListener('removeItem', function(event) {
@@ -133,7 +144,10 @@ function createCollaboratorRows(state, attrs, doc, crElements) {
             state.changeCollabRole[e.target.id] = e.target.value;
           }
         }, crElements),
-        updateRoleButton
+        m('div.button-container', [
+          updateRoleButton,
+          m(RemoveCollabButton, {collabID: collab.id, docID: doc.id})
+          ])
         ], )
       ])
     collabRows.push(row);

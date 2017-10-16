@@ -33,7 +33,6 @@ function createMainWindow() {
   win.on('closed', onClosed);
 
   win.once('ready-to-show', function() {
-    // mainStore.dispatch(actions.showLoading());
     win.show();
   })
 

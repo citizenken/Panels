@@ -21,6 +21,7 @@ function loadConfig() {
 }
 
 function initialize(config) {
+  mainStore.dispatch(actions.showLoading());
   onlineService.nodeCheckInternet()
   .then(function() {
     if (config.allowInternet) {
@@ -28,6 +29,7 @@ function initialize(config) {
     }
   })
   .catch(function(error) {
+    mainStore.dispatch(actions.hideOverlay());
     console.log('this is an error', error)
     console.info('No internet access, not loading firebase')
   });
