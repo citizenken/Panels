@@ -1,6 +1,6 @@
 # Panels
 
-A real-time collaborative script writing program. Bringing Google doc-like features to script writing.
+A real-time collaborative script writing program. Bringing Google Docs-like features to script writing.
 
 Features include easy sharability and markup with your collaborators, and auto formatting as you type. The days of emailing drafts back and forth are over.
 
@@ -15,6 +15,7 @@ Built with:
 
 ```
 $ npm install
+$ npm run-script debug
 ```
 
 ### Run
