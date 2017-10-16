@@ -1,6 +1,14 @@
-# panels
+# Panels
 
-> My phenomenal app
+A real-time collaborative script writing program. Bringing Google doc-like features to script writing.
+
+Features include easy sharability and markup with your collaborators, and auto formatting as you type. The days of emailing drafts back and forth are over.
+
+Built with:
+* [Electron](https://electron.atom.io/)
+* [Firebase](https://firebase.google.com/)
+* [Redux](http://redux.js.org/)
+* [Mithriljs](https://mithril.js.org/)
 
 
 ## Dev
