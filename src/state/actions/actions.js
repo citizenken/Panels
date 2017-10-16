@@ -16,9 +16,15 @@ module.exports = {
   showDetails,
   showPreferences,
   hideOverlay,
-  showLoading
+  showLoading,
+  userLogout
 }
 
+function userLogout() {
+  return {
+    type: actionTypes.USER_LOGOUT,
+  }
+}
 
 function addDoc(doc) {
   return {

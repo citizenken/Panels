@@ -1,9 +1,11 @@
-var BrowserWindow = require('electron').BrowserWindow || require('electron').remote.BrowserWindow,
-    mainStore = require('../mainStore.js'),
-    oauthRoot = mainStore.getState().sysConfig.oauthRoot,
-    redirectUri = oauthRoot + 'callback', // jscs:disable
+var electron = require('electron');
+var BrowserWindow = require('electron').BrowserWindow || require('electron').remote.BrowserWindow;
+var mainStore = require('../mainStore.js');
+var axios = require('axios');
+var oauthRoot = "http://localhost:5000" //mainStore.getState().sysConfig.oauthRoot,
+    redirectUri = oauthRoot + '/callback', // jscs:disable
     authEndPoint = oauthRoot,
-    logOutEndpoint = oauthRoot + 'logout';
+    logOutEndpoint = oauthRoot + '/logout';
 
 module.exports = {
   authWindow: null,
@@ -14,6 +16,9 @@ module.exports = {
     prompt = (!promptForAccount) ? 'select_account' : '';
     this.authWindow = authWindow;
 
+    electron.session.defaultSession.cookies.get({url: oauthRoot}, function(error, cookies) {
+      console.log(error, cookies)
+    });
 
     return new Promise(function (resolve, reject) {
         authWindow.loadURL(authEndPoint);
@@ -44,13 +49,17 @@ module.exports = {
       });
   },
 
-  // logOut: function (url) {
-  //   return $http({url: logOutEndpoint, method: 'GET'})
-  //   .then(function (response) {
-  //     return response;
-  //   })
-  //   .catch(function (error) {
-  //     console.log(error);
-  //   });
-  // }
+  logOut: function (url) {
+    electron.session.defaultSession.cookies.set({url: oauthRoot, name: 'session', value:''}, function(error, cookies) {
+      console.log(error, cookies)
+    });
+
+    return axios.get(logOutEndpoint)
+    .then(function (response) {
+      return response;
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
 };

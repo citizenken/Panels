@@ -1,9 +1,7 @@
 var m = require("mithril");
 var GeneralDetails = require('./generalDetails');
 var Collaborators = require('./Collaborators');
-var path = require('path');
-var firebasePath = path.resolve(__dirname, '..', 'services', 'firebase-service.js');
-var firebaseService = require('electron').remote.require(firebasePath);
+var firebaseService = require('electron').remote.getGlobal('firebaseService');
 var rendererStore = require('../rendererStore');
 var actions = require('../state/actions/actions');
 
@@ -15,10 +13,12 @@ module.exports = Details = {
     'History': undefined
   },
   selectedSection: 'General',
-  docDetails: {},
+  docDetails: undefined,
   oninit: function ({state, attrs, dom}) {
-    var doc = attrs.stateData.documents[attrs.stateData.overlay.data];
+    var doc = attrs.stateData.documents[attrs.stateData.overlay.data],
         promises = [];
+
+    state.docDetails = {};
 
     promises.push(firebaseService.getUser(doc.author)
       .then(function(user) {

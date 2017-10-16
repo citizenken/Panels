@@ -1,9 +1,7 @@
 var m = require("mithril");
 var u = require('../services/utility');
 var Choices = require('choices.js');
-var path = require('path');
-var firebasePath = path.resolve(__dirname, '..', 'services', 'firebase-service.js');
-var firebaseService = require('electron').remote.require(firebasePath);
+var firebaseService = require('electron').remote.getGlobal('firebaseService');
 
 var collaboratorRoles = [
 'view',
@@ -35,9 +33,7 @@ module.exports = Collaborators = {
         );
     }
 
-    if (collaborators) {
-      collabRows = createCollaboratorRows(state, attrs, doc, crElements);
-    }
+    collabRows = createCollaboratorRows(state, attrs, doc, crElements);
 
     return m('div', [
       m('h3', 'Add Collaborators'),
@@ -163,7 +159,7 @@ function onSaveCollaborators(e, state, doc) {
 }
 
 function handleFirebaseCollabSearch(event, state, attrs) {
-  var collaborators = attrs.docDetails.collaborators,
+  var collaborators = attrs.docDetails.collaborators || {},
       doc = attrs.stateData.documents[attrs.stateData.overlay.data];
 
   firebaseService.searchForCollab(event.detail.value, function(snapshot) {

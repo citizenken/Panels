@@ -31,7 +31,7 @@ module.exports = Tabs = {
     registerTabGroupEvents(state);
   },
  onupdate: function({state, attrs, dom}) {
-    var activeTabId = state.tabGroup.getActiveTab(),
+    var activeTabId = state.tabGroup.getActiveTab().id,
         currentDoc = attrs.stateData.currentDocument,
         tabs = state.tabs;
 
@@ -39,6 +39,10 @@ module.exports = Tabs = {
       if (Object.keys(tabs).indexOf(currentDoc) == -1){
         addTab(state, currentDoc, attrs.stateData.documents[currentDoc]);
       }
+    }
+
+    if (activeTabId !== tabs[currentDoc]) {
+      state.tabGroup.getTab(tabs[currentDoc]).activate();
     }
 
     updateTabTitles(state, attrs.stateData);
@@ -114,9 +118,9 @@ function updateTabTitles(state, stateData) {
 
     if (tab) {
       tabTitle = tab.getTitle(),
-      docTitle = stateData.documents[docTabId].title;
-      if (tabTitle !== docTitle) {
-        tab.setTitle(docTitle);
+      doc = stateData.documents[docTabId];
+      if (doc && tabTitle !== doc.title) {
+        tab.setTitle(doc.title);
       }
     }
   }

@@ -7,6 +7,7 @@ var overlayReducer = require('./reducers/overlay');
 var sidebarReducer = require('./reducers/sidebar');
 var sysConfigReducer = require('./reducers/sysConfig');
 var Immutable = require('seamless-immutable');
+var actionTypes = require('./constants/actionTypes.js')
 
 // Initial state
 var initialState = Immutable({
@@ -29,7 +30,15 @@ var panelsApp = Redux.combineReducers({
   overlay: overlayReducer
 });
 
+var reducer = function (state, action) {
+  if (action.type === actionTypes.USER_LOGOUT) {
+    state = initialState
+  }
+
+  return panelsApp(state, action)
+}
+
 module.exports = {
   initialState,
-  panelsApp
+  reducer
 }
