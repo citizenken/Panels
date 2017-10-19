@@ -54,6 +54,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: bold;
+}
+
+.file-button .file-ownership {
+  font-weight: normal;
+  color: darkgray;
 }
 
 .file-button:focus {

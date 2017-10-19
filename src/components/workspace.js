@@ -4,7 +4,8 @@ var Immutable = require('seamless-immutable');
 var Document = require('../models/document');
 var actions = require('../state/actions/actions');
 var rendererStore = require('../rendererStore');
-var CMService = require('../services/codemirror-service')
+var CMService = require('../services/codemirror-service');
+var User = require('../models/user');
 var url = require('url');
 var querystring = require('querystring');
 var queryParams = querystring.parse(url.parse(window.location.href).query);
@@ -33,7 +34,9 @@ module.exports = Page = {
     var storeState = rendererStore.getState(),
         docId = queryParams.docId,
         docTitle = queryParams.docTitle
-        loadDoc = null;
+        loadDoc = null,
+        user = attrs.stateData.user
+        cmReadOnly = false;
 
     if (Object.keys(storeState.documents).indexOf(docId) > -1) {
       doc = Immutable(storeState.documents[docId]);
@@ -44,7 +47,12 @@ module.exports = Page = {
       rendererStore.dispatch(actions.addDoc(doc));
     }
     state.doc = doc;
-    state.CMService = new CMService.CMService(dom, state);
+
+    if (User.checkCollaboratorAccess(doc, user.id) === 'view') {
+      cmReadOnly = 'nocursor';
+    }
+
+    state.CMService = new CMService.CMService(dom, state, cmReadOnly);
 
     if (loadDoc) {
       state.CMService.setValue(doc.content);

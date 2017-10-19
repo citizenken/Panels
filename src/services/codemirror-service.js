@@ -22,8 +22,9 @@ for (var mo in customModes) {
   CodeMirror.defineSimpleMode(mode.meta.name, mode);
 }
 
-function CMService(dom, state) {
+function CMService(dom, state, readOnly) {
   cmOptions.mode = state.doc.type;
+  cmOptions.readOnly = readOnly;
   var instance = {
     editor: CodeMirror(dom, cmOptions),
     state: state,

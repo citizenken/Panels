@@ -41,6 +41,7 @@ function initializeFirebase(config) {
 
   return firebaseService.signIn()
   .then(function (user) {
+    mainStore.dispatch(actions.userLogin(user));
     return firebaseService.loadUserFiles(user);
   })
   .then(function(files) {

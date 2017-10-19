@@ -28,7 +28,7 @@ module.exports = Tabs = {
     console.log('this is attrs', attrs);
 
     openLastDoc(state, stateData)
-    registerTabGroupEvents(state);
+    registerTabGroupEvents(state, stateData);
   },
  onupdate: function({state, attrs, dom}) {
     var activeTab = state.tabGroup.getActiveTab(),
@@ -131,14 +131,25 @@ function updateTabTitles(state, stateData) {
   }
 }
 
-function registerTabGroupEvents(state) {
+function registerTabGroupEvents(state, stateData) {
   state.tabGroup.on("tab-added", function(tab, tabGroup) {
     setTimeout(function() {tab.tab.classList.remove('just-added')}, 500);
     tab.webview.addEventListener('dom-ready', function(e) {
       var x = window.scrollX, y = window.scrollY;
       tab.webview.focus();
-      tab.webview.openDevTools();
+      // tab.webview.openDevTools();
     });
+  });
+
+  state.tabGroup.on("tab-active", function(tab, tabGroup) {
+    var doc = undefined;
+
+    for (var docTab in state.tabs) {
+      if (state.tabs[docTab] === tab.id) {
+        rendererStore.dispatch(actions.changeCurrentDoc(docTab));
+        break;
+      }
+    }
   });
 
   state.tabGroup.on("tab-removed", function(tab, tabGroup) {
@@ -154,7 +165,7 @@ function registerTabGroupEvents(state) {
       }
     }
 
-    if (rendererStore.getState().currentDocument === closedDocument) {
+    if (stateData.currentDocument === closedDocument) {
       rendererStore.dispatch(actions.changeCurrentDoc(newActiveDocID));
     }
   });

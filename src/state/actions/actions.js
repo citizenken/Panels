@@ -17,7 +17,15 @@ module.exports = {
   showPreferences,
   hideOverlay,
   showLoading,
-  userLogout
+  userLogout,
+  userLogin
+}
+
+function userLogin(user) {
+  return {
+    type: actionTypes.USER_LOGIN,
+    user: user
+  }
 }
 
 function userLogout() {

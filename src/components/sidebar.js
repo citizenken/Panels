@@ -1,7 +1,7 @@
 var m = require("mithril")
 var rendererStore = require('../rendererStore');
 var actions = require('../state/actions/actions');
-var Document = require('../models/document')
+var Document = require('../models/document');
 
 
 module.exports = Sidebar = {
@@ -12,7 +12,7 @@ module.exports = Sidebar = {
 
       for (var prop in attrs.stateData.documents) {
         var doc = attrs.stateData.documents[prop];
-        elements.push(m(FileItem, {doc: doc}));
+        elements.push(m(FileItem, {stateData: attrs.stateData, doc: doc}));
       }
     }
     var width = undefined;
@@ -26,24 +26,40 @@ module.exports = Sidebar = {
       m("div.bar-content", [
         m('div.list-group', elements)
         ]),
-      m("div.draggable", {onmousedown: function(e) {onMousedown(state, e)}})
+      m("div.draggable", {
+        onmousedown: function(e) {
+          dragSidebar(state, e)
+        }
+      })
     ]);
   }
 }
 
 var FileItem = {
   view: function({state, attrs, dom}) {
+    var fileOwnership = undefined,
+        currentUser = attrs.stateData.user;
+
+    if (attrs.doc.author === currentUser.id) {
+      fileOwnership = 'author';
+    } else if (Object.keys(attrs.doc.collaborators).indexOf(currentUser.id) > -1) {
+      fileOwnership = 'collaborator: ' + attrs.doc.collaborators[currentUser.id];
+    }
+
     return m('button.list-group-item.file-button', {
       onclick: m.withAttr('value', changeDoc),
-      value: attrs.doc.id
+      value: attrs.doc.id,
     }, [
     m('span.glyphicon.glyphicon-info-sign.show-details', {
       onclick: function(e) {
         e.stopPropagation();
         rendererStore.dispatch(actions.showDetails(attrs.doc.id));
       }
-    })
-    ], attrs.doc.title);
+    }),
+    m('span', attrs.doc.title),
+    m('br'),
+    m('span.file-ownership', fileOwnership)
+    ]);
   }
 }
 
@@ -53,7 +69,7 @@ function changeDoc(docId) {
 
 
 
-function onMousedown(state, event) {
+function dragSidebar(state, event) {
   var minWidth = 3;
   var mousemoveHandler = function(event) {
     var pageX = event.pageX,

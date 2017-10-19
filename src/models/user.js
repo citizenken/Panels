@@ -10,6 +10,7 @@ if (process.type !== 'browser') {
 
 module.exports = {
   User,
+  checkCollaboratorAccess
 }
 
 function User(user) {
@@ -25,3 +26,10 @@ function User(user) {
   firebase.database().ref('/users/' + newUser.id).set(newUser)
   return newUser;
 };
+
+function checkCollaboratorAccess(doc, userID) {
+  if (doc.collaborators && Object.keys(doc.collaborators).indexOf(userID) > -1) {
+    return doc.collaborators[userID];
+  }
+  return undefined
+}

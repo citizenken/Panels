@@ -121,15 +121,40 @@ function FirebaseService() {
      */
     loadUserFiles: function(user) {
       var self = this,
-          filesToRetrieve = Object.keys(user.files).length,
-          retrievedFiles = {},
-          filesToLoad = {};
+          queryParams = {
+            'author': user.id
+          }
 
-      var query = firebase.database().ref('/files')
-          .orderByChild('author')
-          .equalTo(user.id);
+      queryParams['collaborators/' + user.id] = [
+        'view',
+        'edit',
+        'suggest'
+      ]
 
-      query.on('child_added', function(snapshot) {
+      for (var qp in queryParams) {
+
+        if (typeof queryParams[qp] === 'string') {
+          self.queryForFiles(qp, queryParams[qp]);
+        } else if (Array.isArray(queryParams[qp])) {
+          for (var i = queryParams[qp].length - 1; i >= 0; i--) {
+            var equalTo = queryParams[qp][i];
+            self.queryForFiles(qp, equalTo);
+          }
+        }
+      }
+    },
+    /**
+     * Query for files and set listeners for those files
+     * @return {str} orderByChild The child property to order by
+     * @return {str} equalTo The value of that property to filter by
+     */
+    queryForFiles: function(orderByChild, equalTo) {
+      var self = this,
+          fileQuery = firebase.database().ref('/files')
+          .orderByChild(orderByChild)
+          .equalTo(equalTo);
+
+      fileQuery.on('child_added', function(snapshot) {
         var doc = snapshot.val();
         // We only want docs not marked 'deleted'
         if (!doc.deleted) {
@@ -137,7 +162,7 @@ function FirebaseService() {
         }
       });
 
-      query.on('child_changed', function(snapshot) {
+      fileQuery.on('child_changed', function(snapshot) {
         self.detectFileChanges(snapshot);
       });
     },
