@@ -137,7 +137,7 @@ function registerTabGroupEvents(state, stateData) {
     tab.webview.addEventListener('dom-ready', function(e) {
       var x = window.scrollX, y = window.scrollY;
       tab.webview.focus();
-      // tab.webview.openDevTools();
+      tab.webview.openDevTools();
     });
   });
 

@@ -1,0 +1,10 @@
+#selection-popup {
+  position: absolute;
+  display: block;
+  z-index: 1000;
+}
+
+.CodeMirror {
+  height: 100%;
+  /*min-height: inherit;*/
+}

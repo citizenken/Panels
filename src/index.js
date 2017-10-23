@@ -52,7 +52,7 @@ electronApp.on('activate', () => {
 });
 
 electronApp.on('ready', () => {
-  var menu = require('./menu');
+  require('./menu');
   app.initialize(app.loadConfig());
   mainWindow = createMainWindow();
 });

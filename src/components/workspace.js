@@ -1,5 +1,5 @@
 var m = require('mithril')
-var Sidebar = require('./sidebar')
+var SelectionPopup = require('./selectionPopup')
 var Immutable = require('seamless-immutable');
 var Document = require('../models/document');
 var actions = require('../state/actions/actions');
@@ -18,10 +18,11 @@ var unsubscribe = rendererStore.subscribe(function() {
 });
 
 module.exports = Workspace = {
-  view: function() {
+  selection: undefined,
+  view: function({state, attrs, dom}) {
     return m('div', [
       m(Page, {stateData: stateData}),
-      m('div#cursor_mount', {style: 'display:none'})
+      m('div#cursor-mount', {style: 'display:none'}),
       ]);
   }
 }
@@ -52,7 +53,7 @@ module.exports = Page = {
       cmReadOnly = 'nocursor';
     }
 
-    state.CMService = new CMService.CMService(dom, state, cmReadOnly);
+    state.CMService = new CMService.CMService(dom, state, user, cmReadOnly);
 
     if (loadDoc) {
       state.CMService.setValue(doc.content);
@@ -80,8 +81,21 @@ module.exports = Page = {
       state.CMService.setCollabCursors(stateData.cursors[stateDoc.id].collabCursors);
     }
   },
-  view: function() {
-    return m(".page");
+  view: function({state, attrs, dom}) {
+    var selectionPopup = undefined;
+
+    if (state.selection) {
+      selectionPopup = m(SelectionPopup, {
+        doc: state.doc,
+        selection: state.selection,
+        userID: attrs.stateData.user,
+        cm: state.CMService
+      })
+    }
+
+    return m(".page", [
+        selectionPopup
+      ]);
   }
 }
 

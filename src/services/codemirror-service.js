@@ -1,9 +1,11 @@
 require('codemirror/addon/runmode/runmode.js');
 require('codemirror/addon/mode/simple.js');
+var m = require('mithril');
 var CodeMirror = require('codemirror');
 var Document = require('../models/document');
-var m = require('mithril');
 var customModes = require('../custom-codemirror-modes');
+var deepEqual = require('deep-equal');
+var utilities = require('./utility');
 
 module.exports = {
   CMService
@@ -22,12 +24,14 @@ for (var mo in customModes) {
   CodeMirror.defineSimpleMode(mode.meta.name, mode);
 }
 
-function CMService(dom, state, readOnly) {
+function CMService(dom, state, currentUser, readOnly) {
   cmOptions.mode = state.doc.type;
   cmOptions.readOnly = readOnly;
+  console.log(currentUser)
   var instance = {
     editor: CodeMirror(dom, cmOptions),
     state: state,
+    currentUser: currentUser,
     longestCharacerTag: null,
     logCharTagChange: null,
     focus: function() {
@@ -41,13 +45,12 @@ function CMService(dom, state, readOnly) {
     },
     registerEvents: function() {
       var self = this;
-      // self.editor.on('cursorActivity', self.updateCursorLocation.bind(self));
-      // self.editor.on('blur', self.handleBlur.bind(self));
       self.editor.on('focus', self.handleFocus.bind(self));
       self.editor.on('changes', self.handleChanges.bind(self));
       self.editor.on('renderLine', self.handleRenderLine.bind(self));
       self.editor.on('update', self.handleUpdate.bind(self));
       self.editor.on('cursorActivity', self.handleCursorActivity.bind(self));
+      self.editor.on('beforeSelectionChange', self.handleSelection.bind(self));
     },
     handleChanges: function (c, change) {
       var state = this.state;
@@ -65,6 +68,25 @@ function CMService(dom, state, readOnly) {
     },
     handleCursorActivity: function(c) {
       Document.upateCursorLocation(c);
+    },
+    handleSelection: function(c, selection) {
+      var self = this,
+          coords = {},
+          anchor = selection.ranges[0].anchor,
+          head = selection.ranges[0].head;
+
+      if (!deepEqual(anchor, head)) {
+        state.selection = {
+          raw: selection,
+          coords: self.getCharCoords(anchor, 'page')
+        }
+      } else {
+        state.selection = undefined;
+      }
+    },
+    getCharCoords: function(char, reference) {
+      var self = this;
+      return self.editor.charCoords({line: char.line, ch: char.ch}, reference)
     },
     setCollabCursors: function(cursors) {
       var self = this,
@@ -94,7 +116,7 @@ function CMService(dom, state, readOnly) {
               cursorEl = m('div.collab-cursor#' + cursor, [
                 m('div.cursor', {style: 'border-color:' + cursorColor})
                 ]);
-          m.render(document.getElementById('cursor_mount'), cursorEl);
+          m.render(document.getElementById('cursor-mount'), cursorEl);
           state.cursors[cursor] = document.getElementById(cursor).cloneNode(true);
         }
         cm.setBookmark(cursorData, {widget: state.cursors[cursor]})

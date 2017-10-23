@@ -383,6 +383,27 @@ function FirebaseService() {
 
       return Promise.all(promises);
     },
+    saveComment: function(comment) {
+      var promises = [];
+
+      var filePromise = firebase.database().ref('/files/' + comment.doc + '/comments/' + comment.id).set(true)
+        .then(function() {
+          console.log('firebase update complete');
+        })
+        .catch(function(error) {
+          console.log('a firebase error', error)
+        });
+
+      var commentPromise = firebase.database().ref('/comments/' + comment.id).set(comment)
+        .then(function() {
+          console.log('firebase update complete');
+        })
+        .catch(function(error) {
+          console.log('a firebase error', error)
+        });
+
+      return Promise.all(promises);
+    }
   }
 
   if (!firebase.apps.length) {

@@ -97,7 +97,7 @@ function setAsCurrentDoc(docID, cm) {
 
 function upateCursorLocation(cm, docID) {
   var rawCursor = cm.getCursor();
-  console.log(rawCursor)
+
   var cursor = {
         line: rawCursor.line,
         ch: rawCursor.ch
