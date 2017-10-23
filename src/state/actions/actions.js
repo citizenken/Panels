@@ -18,7 +18,8 @@ module.exports = {
   hideOverlay,
   showLoading,
   userLogout,
-  userLogin
+  userLogin,
+  commentUpdate
 }
 
 function userLogin(user) {
@@ -140,5 +141,13 @@ function showLoading() {
 function hideOverlay() {
   return {
     type: actionTypes.HIDE_OVERLAY,
+  }
+}
+
+function commentUpdate(comment) {
+  return {
+    type: actionTypes.COMMENT_UPDATE,
+    comment: comment,
+    docID: comment.doc
   }
 }

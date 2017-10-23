@@ -67,7 +67,7 @@ function CMService(dom, state, currentUser, readOnly) {
       }
     },
     handleCursorActivity: function(c) {
-      Document.upateCursorLocation(c);
+      Document.upateCursorLocation(c, state.doc.id);
     },
     handleSelection: function(c, selection) {
       var self = this,
@@ -167,7 +167,21 @@ function CMService(dom, state, currentUser, readOnly) {
           }
         }
       }
-    }
+    },
+    // setComments: function(comments) {
+    //   var self = this;
+    //   for (var c in comments) {
+    //     var comment = comments[c];
+
+    //     self.editor.markText(comment.selection.anchor, comment.selection.head, {
+    //       title: comment.id,
+    //       css: 'color: #fe3',
+    //       atomic: true,
+    //     })
+
+
+    //   }
+    // }
   }
 
   return instance;

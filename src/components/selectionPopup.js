@@ -32,7 +32,7 @@ module.exports = SelectionPopup = {
         m('button.btn.btn-primary', {
           type: "button",
           onclick: function(e) {
-            state.mode = 'comment';
+            state.mode = (state.mode === 'comment') ? undefined:'comment';
           }
         }, [
           m('span.glyphicon.glyphicon-comment')
@@ -48,7 +48,7 @@ module.exports = SelectionPopup = {
 var CommentForm = {
   comment: undefined,
   oncreate: function({state, attrs, dom}) {
-    state.comment = new Comment.Comment(undefined, attrs.userID, attrs.doc.id, attrs.selection)
+    state.comment = new Comment.Comment(undefined, attrs.user.id, attrs.doc.id, attrs.selection)
   },
   view: function({state, attrs, dom}) {
     return m('div', [

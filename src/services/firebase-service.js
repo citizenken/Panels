@@ -304,14 +304,11 @@ function FirebaseService() {
      * @return {promise} A list of user objects containing user details
      */
     getCollaborators: function(doc) {
-      var collabs = Object.keys(doc.collaborators),
+      var self = this,
+          collabs = Object.keys(doc.collaborators),
           promises = [];
       for (var c in collabs) {
-        var promise = firebase.database().ref('/users/' + collabs[c])
-          .once('value')
-          .then(function(userSnapshot) {
-            return userSnapshot.val();
-          });
+        var promise = self.getUser(collabs[c]);
         promises.push(promise);
       }
       // When all promises are finished, return the collab object with full data
@@ -403,7 +400,37 @@ function FirebaseService() {
         });
 
       return Promise.all(promises);
-    }
+    },
+    getCurrentComments: function(docID) {
+      var self = this,
+          comments = [];
+
+      if (self.collabCursorQuery) {
+        self.collabCursorQuery.off();
+      }
+
+      var query = firebase.database().ref('/comments')
+        .orderByChild('doc')
+        .equalTo(docID);
+      self.commentQuery = query;
+
+      query.on('child_added', function(snapshot) {
+        var comment = snapshot.val();
+        mainStore.dispatch(actions.commentUpdate(comment));
+      });
+      query.on('child_changed', function(snapshot) {
+        var comment = snapshot.val();
+        mainStore.dispatch(actions.commentUpdate(comment));
+      });
+      // query.on('child_removed', function(snapshot) {
+      //   var collab = snapshot.val();
+      //   // If someone navigates away from the current document, remove them from the collab cursor object
+      //   // since they are no longer currently collaborating
+      //   if (collab.id !== self.firebaseUser.id) {
+      //     mainStore.dispatch(actions.removeComment(collab.id, docID));
+      //   }
+      // });
+    },
   }
 
   if (!firebase.apps.length) {

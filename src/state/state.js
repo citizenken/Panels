@@ -5,6 +5,7 @@ var cursorsReducer = require('./reducers/cursors');
 var tabReducer = require('./reducers/tabs');
 var overlayReducer = require('./reducers/overlay');
 var sidebarReducer = require('./reducers/sidebar');
+var commentsReducer = require('./reducers/comments');
 var userReducer = require('./reducers/user');
 var sysConfigReducer = require('./reducers/sysConfig');
 var Immutable = require('seamless-immutable');
@@ -19,7 +20,8 @@ var initialState = Immutable({
   sidebarConfig: {},
   cursors: {},
   overlay: {},
-  user: {}
+  user: {},
+  comments: {},
 });
 
 var panelsApp = Redux.combineReducers({
@@ -30,7 +32,8 @@ var panelsApp = Redux.combineReducers({
   sidebarConfig: sidebarReducer,
   cursors: cursorsReducer,
   overlay: overlayReducer,
-  user: userReducer
+  user: userReducer,
+  comments: commentsReducer,
 });
 
 var reducer = function (state, action) {

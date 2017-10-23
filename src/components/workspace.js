@@ -80,6 +80,10 @@ module.exports = Page = {
     if (stateData.cursors[stateDoc.id] && stateData.cursors[stateDoc.id].collabCursors) {
       state.CMService.setCollabCursors(stateData.cursors[stateDoc.id].collabCursors);
     }
+
+    if (stateData.comments[stateDoc.id]) {
+      // state.CMService.setComments(stateData.comments[stateDoc.id]);
+    }
   },
   view: function({state, attrs, dom}) {
     var selectionPopup = undefined;
@@ -88,7 +92,7 @@ module.exports = Page = {
       selectionPopup = m(SelectionPopup, {
         doc: state.doc,
         selection: state.selection,
-        userID: attrs.stateData.user,
+        user: attrs.stateData.user,
         cm: state.CMService
       })
     }
