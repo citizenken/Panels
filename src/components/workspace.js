@@ -18,11 +18,12 @@ var unsubscribe = rendererStore.subscribe(function() {
 });
 
 module.exports = Workspace = {
-  selection: undefined,
   view: function({state, attrs, dom}) {
     return m('div', [
       m(Page, {stateData: stateData}),
       m('div#cursor-mount', {style: 'display:none'}),
+      m('div#comment-mount', {style: 'display:none'}),
+      m('div#add-comment-mount', {style: 'display:none'}),
       ]);
   }
 }
@@ -31,6 +32,7 @@ module.exports = Page = {
   doc: null,
   cm: null,
   cursors: {},
+  isSelection: false,
   oncreate: function ({state, attrs, dom}) {
     var storeState = rendererStore.getState(),
         docId = queryParams.docId,
@@ -82,23 +84,30 @@ module.exports = Page = {
     }
 
     if (stateData.comments[stateDoc.id]) {
-      // state.CMService.setComments(stateData.comments[stateDoc.id]);
+      state.CMService.setComments(stateData.comments[stateDoc.id]);
     }
   },
   view: function({state, attrs, dom}) {
     var selectionPopup = undefined;
+        selectionEl = document.getElementsByClassName('CodeMirror-selected')[0];
 
-    if (state.selection) {
+    if (Object.keys(attrs.stateData.commentPopup).length > 0 && selectionEl) {
       selectionPopup = m(SelectionPopup, {
         doc: state.doc,
         selection: state.selection,
         user: attrs.stateData.user,
         cm: state.CMService
-      })
+      });
+    }
+
+    if (!state.isSelection
+      && Object.keys(attrs.stateData.commentPopup).length > 0
+      && selectionEl) {
+      rendererStore.dispatch(actions.hideCommentPopup());
     }
 
     return m(".page", [
-        selectionPopup
+        selectionPopup,
       ]);
   }
 }

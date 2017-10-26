@@ -87,8 +87,9 @@ function getRemoteFileDiff(local, remote) {
 }
 
 function setAsCurrentDoc(docID, cm) {
+  console.log('this is running')
   firebaseService.updateUserCurrentFile(docID);
-  firebaseService.getCurrentCollaboratorCursors(docID);
+  // firebaseService.getCurrentCollaboratorCursors(docID);
   firebaseService.getCurrentComments(docID);
   stateStore.dispatch(actions.changeCurrentDoc(docID));
   if (cm) {
@@ -104,6 +105,5 @@ function upateCursorLocation(cm, docID) {
         ch: rawCursor.ch
       };
   firebaseService.updateUserCursor(cursor);
-  console.log(docID)
   stateStore.dispatch(actions.userCursorUpdate(cursor, docID));
 }

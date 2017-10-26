@@ -273,6 +273,7 @@ function FirebaseService() {
           mainStore.dispatch(actions.removeCollabCursor(collab.id, docID));
         }
       });
+      return
     },
     /**
      * Update the local Redux state with the new cursor location for this collaborator
@@ -416,11 +417,17 @@ function FirebaseService() {
 
       query.on('child_added', function(snapshot) {
         var comment = snapshot.val();
-        mainStore.dispatch(actions.commentUpdate(comment));
+        if (!comment.deleted) {
+          mainStore.dispatch(actions.commentUpdate(comment));
+        }
       });
       query.on('child_changed', function(snapshot) {
         var comment = snapshot.val();
-        mainStore.dispatch(actions.commentUpdate(comment));
+        if (!comment.deleted) {
+          mainStore.dispatch(actions.commentUpdate(comment));
+        } else {
+          mainStore.dispatch(actions.deleteComment(comment));
+        }
       });
       // query.on('child_removed', function(snapshot) {
       //   var collab = snapshot.val();
@@ -430,7 +437,17 @@ function FirebaseService() {
       //     mainStore.dispatch(actions.removeComment(collab.id, docID));
       //   }
       // });
+      return
     },
+    updateComment: function(comment) {
+      return firebase.database().ref('/comments/' + comment.doc + '/comments/' + comment.id).set(comment)
+        .then(function() {
+          console.log('firebase update complete');
+        })
+        .catch(function(error) {
+          console.log('a firebase error', error)
+        });
+    }
   }
 
   if (!firebase.apps.length) {

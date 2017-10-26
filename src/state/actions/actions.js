@@ -19,7 +19,10 @@ module.exports = {
   showLoading,
   userLogout,
   userLogin,
-  commentUpdate
+  commentUpdate,
+  deleteComment,
+  showCommentPopup,
+  hideCommentPopup
 }
 
 function userLogin(user) {
@@ -149,5 +152,27 @@ function commentUpdate(comment) {
     type: actionTypes.COMMENT_UPDATE,
     comment: comment,
     docID: comment.doc
+  }
+}
+
+function deleteComment(comment) {
+  return {
+    type: actionTypes.COMMENT_DELETE,
+    comment: comment,
+    docID: comment.doc
+  }
+}
+
+function showCommentPopup(position) {
+  return {
+    type: actionTypes.SHOW_COMMENT_POPUP,
+    position: position,
+  }
+}
+
+function hideCommentPopup(position) {
+  return {
+    type: actionTypes.HIDE_COMMENT_POPUP,
+    position: position,
   }
 }

@@ -7,6 +7,7 @@ var dragula = require("dragula");
 var rendererStore = require('../rendererStore');
 var actions = require('../state/actions/actions');
 var Immutable = require('seamless-immutable');
+var contextMenuService = require('../services/context-menu-service');
 
 window.addEventListener('resize', m.redraw, false);
 
@@ -98,7 +99,8 @@ function addTab(state, docId, loadedDoc) {
   state.tabs[docId] = tabGroup.newTabId;
 
   if (loadedDoc) {
-    tabGroup.addTab(tabConfig);
+    var tab = tabGroup.addTab(tabConfig);
+    // contextMenuService.createWorkspaceContextMenu(tab.webview);
   } else {
     return tabConfig;
   }
@@ -134,6 +136,9 @@ function updateTabTitles(state, stateData) {
 function registerTabGroupEvents(state, stateData) {
   state.tabGroup.on("tab-added", function(tab, tabGroup) {
     setTimeout(function() {tab.tab.classList.remove('just-added')}, 500);
+
+    contextMenuService.createWorkspaceContextMenu(tab.webview);
+
     tab.webview.addEventListener('dom-ready', function(e) {
       var x = window.scrollX, y = window.scrollY;
       tab.webview.focus();

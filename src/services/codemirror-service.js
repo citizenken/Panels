@@ -3,9 +3,11 @@ require('codemirror/addon/mode/simple.js');
 var m = require('mithril');
 var CodeMirror = require('codemirror');
 var Document = require('../models/document');
+var Comment = require('../components/comment');
 var customModes = require('../custom-codemirror-modes');
 var deepEqual = require('deep-equal');
 var utilities = require('./utility');
+var randomstring = require("randomstring");
 
 module.exports = {
   CMService
@@ -34,6 +36,10 @@ function CMService(dom, state, currentUser, readOnly) {
     currentUser: currentUser,
     longestCharacerTag: null,
     logCharTagChange: null,
+    comments: {},
+    commentMarks: {},
+    cursors: {},
+    commentEntry: undefined,
     focus: function() {
       var self = this;
       self.editor.focus();
@@ -76,12 +82,27 @@ function CMService(dom, state, currentUser, readOnly) {
           head = selection.ranges[0].head;
 
       if (!deepEqual(anchor, head)) {
-        state.selection = {
-          raw: selection,
-          coords: self.getCharCoords(anchor, 'page')
+        if (self.commentEntry) {
+          self.commentEntry.clear();
+          self.commentEntry = undefined;
         }
+
+        var mount = document.getElementById('add-comment-mount'),
+            div = document.createElement("div");
+
+        mount.append(div);
+        m.render(div, Comment.buildAddCommentElement(self, {anchor: anchor, head: head}).element());
+        addCommentBox = document.getElementById('add-comment-box');
+        self.commentEntry = self.editor.addLineWidget(head.line, addCommentBox, {insertAt:0});
       } else {
+        self.removeCommentEntry()
         state.selection = undefined;
+      }
+    },
+    removeCommentEntry: function() {
+      var self = this;
+      if (self.commentEntry) {
+        self.commentEntry.clear();
       }
     },
     getCharCoords: function(char, reference) {
@@ -168,20 +189,53 @@ function CMService(dom, state, currentUser, readOnly) {
         }
       }
     },
-    // setComments: function(comments) {
-    //   var self = this;
-    //   for (var c in comments) {
-    //     var comment = comments[c];
+    setComments: function(comments) {
+      var self = this;
 
-    //     self.editor.markText(comment.selection.anchor, comment.selection.head, {
-    //       title: comment.id,
-    //       css: 'color: #fe3',
-    //       atomic: true,
-    //     })
+      // if (Object.keys(self.commentMarks).length > 0
+      //   && Object.keys(self.comments).length > 0) {
+      //   for (var c in self.commentMarks) {
+      //     self.commentMarks[c].clear();
+      //     self.comments[c].clear();
+      //   }
+      // }
+
+      for (var c in comments) {
+        var comment = comments[c];
+        if (Object.keys(self.comments).indexOf(comment.id) === -1) {
+          var mount = document.getElementById('comment-mount'),
+              div = document.createElement("div");
+
+          div.id = 'comment-mount' + comment.id;
+          mount.appendChild(div);
+          m.render(div, Comment.buildCommentElement(comment, comments, self, self.editor));
+
+          let commentNode = document.getElementById(comment.id);
+          self.commentMarks[comment.id] = self.editor.markText(comment.selection.anchor,
+                comment.selection.head, {
+                  css: 'background-color: yellow',
+                  title: comment.id,
+                  clearOnEnter: false
+                });
+
+          let markElement = document.querySelector('[title="' + comment.id + '"]');
+
+          markElement.addEventListener('mouseenter', function(e) {
+            commentNode.style.display = 'block';
+          });
+
+          markElement.addEventListener('mouseleave', function(e) {
+            commentNode.style.display = 'none';
+          });
 
 
-    //   }
-    // }
+          self.comments[comment.id] = self.editor.addLineWidget(comment.selection.anchor.line, commentNode);
+        }
+      }
+    },
+    setMarkHandlers: function (mark) {
+
+    }
   }
 
   return instance;

@@ -8,3 +8,19 @@
   height: 100%;
   /*min-height: inherit;*/
 }
+
+.comment {
+    display: none;
+}
+
+.show-block {
+    display: block !important;
+}
+
+.hide {
+    display: none;
+}
+
+#add-comment-form {
+    display: none;
+}

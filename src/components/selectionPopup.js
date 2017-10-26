@@ -1,28 +1,31 @@
-var m = require("mithril")
-var Comment = require('../models/comment')
-
+var m = require("mithril");
+var Comment = require('../models/comment');
+var rendererStore = require('../rendererStore');
+var actions = require('../state/actions/actions');
 
 module.exports = SelectionPopup = {
   mode: undefined,
   lineHeight: undefined,
-  oninit: function({state, attrs, dom}) {
-    state.lineHeight = document.getElementsByClassName('CodeMirror-line')[0].offsetHeight;
+  oncreate: function({state, attrs, dom}) {
     window.addEventListener('resize', function() {
       recalculateCoords(attrs)
     }, false);
   },
+  onremove: function({state, attrs, dom}) {
+    rendererStore.dispatch(actions.hideCommentPopup());
+  },
   view: function({state, attrs, dom}) {
+    console.log(attrs.selection);
     var modeContainer = undefined,
-        style = {};
+        coords = attrs.selection,
+        style = {
+          left: coords.left + 'px',
+          top: coords.top + 'px'
+        };
 
     if (state.mode === 'comment') {
       attrs.parentState = state;
       modeContainer = m(CommentForm, attrs);
-    }
-    var coords = attrs.selection.coords;
-    style = {
-      left: coords.left + 'px',
-      top: coords.top + state.lineHeight + 'px'
     }
 
     return m('div#selection-popup', {
@@ -48,7 +51,12 @@ module.exports = SelectionPopup = {
 var CommentForm = {
   comment: undefined,
   oncreate: function({state, attrs, dom}) {
-    state.comment = new Comment.Comment(undefined, attrs.user.id, attrs.doc.id, attrs.selection)
+    var selection = {
+      anchor: attrs.cm.editor.getCursor('anchor'),
+      head: attrs.cm.editor.getCursor('head')
+    }
+
+    state.comment = new Comment.Comment(undefined, attrs.user.id, attrs.doc.id, selection)
   },
   view: function({state, attrs, dom}) {
     return m('div', [
@@ -68,6 +76,7 @@ var CommentForm = {
           Comment.saveComment(state.comment, attrs.doc)
             .then(function() {
               attrs.parentState.mode = undefined;
+              rendererStore.dispatch(actions.hideCommentPopup())
             })
         }
       }, 'Submit'),

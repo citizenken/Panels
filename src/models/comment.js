@@ -5,7 +5,9 @@ var firebaseService = require('electron').remote.getGlobal('firebaseService');
 module.exports = {
   Comment,
   updateCommentContent,
-  saveComment
+  saveComment,
+  deleteComment,
+  undeleteComment
 }
 
 function Comment(id, authorID, docID, selection) {
@@ -13,8 +15,8 @@ function Comment(id, authorID, docID, selection) {
     id = randomstring.generate(20)
   }
 
-  var anchor = selection.raw.ranges[0].anchor,
-      head = selection.raw.ranges[0].head;
+  var anchor = selection.anchor,
+      head = selection.head;
 
   var comment = Immutable({
     id: id,
@@ -27,6 +29,7 @@ function Comment(id, authorID, docID, selection) {
     doc: docID,
     createdOn: Date.now(),
     modifiedOn: Date.now(),
+    deleted: false
   })
 
   return comment;
@@ -38,4 +41,14 @@ function updateCommentContent(comment, content) {
 
 function saveComment(comment) {
   return firebaseService.saveComment(comment);
+}
+
+function deleteComment(comment) {
+  var comment = Immutable.set(comment, 'deleted', true);
+  return firebaseService.updateComment(comment);
+}
+
+function undeleteComment(comment) {
+  var comment = Immutable.set(comment, 'deleted', false);
+  return firebaseService.updateComment(comment);
 }
