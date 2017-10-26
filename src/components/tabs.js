@@ -44,6 +44,7 @@ module.exports = Tabs = {
     if (currentDoc) {
       if (Object.keys(tabs).indexOf(currentDoc) == -1){
         addTab(state, currentDoc, attrs.stateData.documents[currentDoc]);
+        registerTabGroupEvents(state, stateData);
       }
     }
 
@@ -100,7 +101,9 @@ function addTab(state, docId, loadedDoc) {
 
   if (loadedDoc) {
     var tab = tabGroup.addTab(tabConfig);
-    // contextMenuService.createWorkspaceContextMenu(tab.webview);
+    tab.on("webview-ready", function(tab) {
+      contextMenuService.createWorkspaceContextMenu(tab.webview);
+    });
   } else {
     return tabConfig;
   }
@@ -138,7 +141,6 @@ function registerTabGroupEvents(state, stateData) {
     setTimeout(function() {tab.tab.classList.remove('just-added')}, 500);
 
     contextMenuService.createWorkspaceContextMenu(tab.webview);
-
     tab.webview.addEventListener('dom-ready', function(e) {
       var x = window.scrollX, y = window.scrollY;
       tab.webview.focus();
