@@ -43,7 +43,7 @@ var FileItem = {
     if (attrs.doc.author === currentUser.id) {
       fileOwnership = 'author';
     } else if (Object.keys(attrs.doc.collaborators).indexOf(currentUser.id) > -1) {
-      fileOwnership = 'collaborator: ' + attrs.doc.collaborators[currentUser.id];
+      fileOwnership = 'collaborator - ' + attrs.doc.collaborators[currentUser.id];
     }
 
     return m('button.list-group-item.file-button', {
