@@ -88,27 +88,7 @@ module.exports = Page = {
     }
   },
   view: function({state, attrs, dom}) {
-    var selectionPopup = undefined;
-        selectionEl = document.getElementsByClassName('CodeMirror-selected')[0];
-
-    if (Object.keys(attrs.stateData.commentPopup).length > 0 && selectionEl) {
-      selectionPopup = m(SelectionPopup, {
-        doc: state.doc,
-        selection: state.selection,
-        user: attrs.stateData.user,
-        cm: state.CMService
-      });
-    }
-
-    if (!state.isSelection
-      && Object.keys(attrs.stateData.commentPopup).length > 0
-      && selectionEl) {
-      rendererStore.dispatch(actions.hideCommentPopup());
-    }
-
-    return m(".page", [
-        selectionPopup,
-      ]);
+    return m(".page");
   }
 }
 

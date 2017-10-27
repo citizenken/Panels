@@ -44,7 +44,6 @@ module.exports = Tabs = {
     if (currentDoc) {
       if (Object.keys(tabs).indexOf(currentDoc) == -1){
         addTab(state, currentDoc, attrs.stateData.documents[currentDoc]);
-        registerTabGroupEvents(state, stateData);
       }
     }
 

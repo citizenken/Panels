@@ -247,6 +247,7 @@ function FirebaseService() {
      * @return {none}
      */
     getCurrentCollaboratorCursors: function(docID) {
+      // debugger
       var self = this,
           collaboratorCursors = [];
 
@@ -260,6 +261,7 @@ function FirebaseService() {
       self.collabCursorQuery = query;
 
       query.on('child_added', function(snapshot) {
+        console.log('collab cursor added')
         self.updateCollabCursor(snapshot);
       });
       query.on('child_changed', function(snapshot) {
@@ -273,7 +275,6 @@ function FirebaseService() {
           mainStore.dispatch(actions.removeCollabCursor(collab.id, docID));
         }
       });
-      return
     },
     /**
      * Update the local Redux state with the new cursor location for this collaborator
@@ -406,8 +407,8 @@ function FirebaseService() {
       var self = this,
           comments = [];
 
-      if (self.collabCursorQuery) {
-        self.collabCursorQuery.off();
+      if (self.commentQuery) {
+        self.commentQuery.off();
       }
 
       var query = firebase.database().ref('/comments')
@@ -429,15 +430,6 @@ function FirebaseService() {
           mainStore.dispatch(actions.deleteComment(comment));
         }
       });
-      // query.on('child_removed', function(snapshot) {
-      //   var collab = snapshot.val();
-      //   // If someone navigates away from the current document, remove them from the collab cursor object
-      //   // since they are no longer currently collaborating
-      //   if (collab.id !== self.firebaseUser.id) {
-      //     mainStore.dispatch(actions.removeComment(collab.id, docID));
-      //   }
-      // });
-      return
     },
     updateComment: function(comment) {
       return firebase.database().ref('/comments/' + comment.doc + '/comments/' + comment.id).set(comment)

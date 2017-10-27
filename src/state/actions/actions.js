@@ -106,6 +106,7 @@ function userCursorUpdate(cursor, docID) {
 }
 
 function collabCursorUpdate(collabID, cursor, docID) {
+  console.log('registering a collab cursor update')
   return {
     type: actionTypes.COLLAB_USER_CURSOR_UPDATE,
     collabID: collabID,
