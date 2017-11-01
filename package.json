@@ -34,7 +34,6 @@
     "codemirror": "^5.30.0",
     "deep-diff": "^0.3.8",
     "deep-equal": "^1.0.1",
-    "diff-match-patch": "^1.0.0",
     "dragula": "^3.7.2",
     "electron-context-menu": "^0.9.1",
     "electron-debug": "^1.0.0",

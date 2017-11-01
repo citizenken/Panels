@@ -39,8 +39,7 @@ module.exports = Page = {
         docTitle = queryParams.docTitle
         loadDoc = null,
         user = attrs.stateData.user
-        cmReadOnly = false,
-        cmDiff = false;
+        cmReadOnly = false;
 
     if (Object.keys(storeState.documents).indexOf(docId) > -1) {
       doc = Immutable(storeState.documents[docId]);
@@ -54,11 +53,9 @@ module.exports = Page = {
 
     if (User.checkCollaboratorAccess(doc, user.id) === 'view') {
       cmReadOnly = 'nocursor';
-    } else if (User.checkCollaboratorAccess(doc, user.id) === 'suggest') {
-      cmDiff = true;
     }
 
-    state.CMService = new CMService.CMService(dom, state, user, cmReadOnly, cmDiff);
+    state.CMService = new CMService.CMService(dom, state, user, cmReadOnly);
 
     if (loadDoc) {
       state.CMService.setValue(doc.content);
