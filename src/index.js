@@ -25,7 +25,7 @@ function createMainWindow() {
     show: false
   });
 
-  var url = 'file://' + path.resolve(__dirname, '..', 'static', 'main.html')
+  var url = 'file://' + path.resolve(__dirname, '..', 'static', 'workspace.html')
 
   win.loadURL(url);
   win.maximize();
@@ -46,13 +46,13 @@ electronApp.on('window-all-closed', () => {
 });
 
 electronApp.on('activate', () => {
-  if (!mainWindow) {
-    mainWindow = createMainWindow();
-  }
+  // if (!mainWindow) {
+  //   mainWindow = createMainWindow();
+  // }
 });
 
 electronApp.on('ready', () => {
   require('./menu');
   app.initialize(app.loadConfig());
-  mainWindow = createMainWindow();
+  // mainWindow = createMainWindow();
 });
