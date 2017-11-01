@@ -1,5 +1,6 @@
 require('codemirror/addon/runmode/runmode.js');
 require('codemirror/addon/mode/simple.js');
+require('codemirror/addon/search/searchcursor.js');
 var m = require('mithril');
 var CodeMirror = require('codemirror');
 var Document = require('../models/document');
@@ -8,6 +9,7 @@ var customModes = require('../custom-codemirror-modes');
 var deepEqual = require('deep-equal');
 var utilities = require('./utility');
 var randomstring = require("randomstring");
+var DiffMatchPatch = require('diff-match-patch');
 
 module.exports = {
   CMService
@@ -26,10 +28,15 @@ for (var mo in customModes) {
   CodeMirror.defineSimpleMode(mode.meta.name, mode);
 }
 
-function CMService(dom, state, currentUser, readOnly) {
+function CMService(dom, state, currentUser, readOnly, diff) {
   cmOptions.mode = state.doc.type;
   cmOptions.readOnly = readOnly;
-  console.log(currentUser)
+  var diffMatchPatch = undefined;
+
+  if (diff) {
+    diffMatchPatch = new DiffMatchPatch();
+  }
+
   var instance = {
     editor: CodeMirror(dom, cmOptions),
     state: state,
@@ -40,6 +47,8 @@ function CMService(dom, state, currentUser, readOnly) {
     commentMarks: {},
     cursors: {},
     commentEntry: undefined,
+    diffMatchPatch: diffMatchPatch,
+    skipNextdiff: false,
     focus: function() {
       var self = this;
       self.editor.focus();
@@ -52,6 +61,13 @@ function CMService(dom, state, currentUser, readOnly) {
     registerEvents: function() {
       var self = this;
       self.editor.on('focus', self.handleFocus.bind(self));
+      // self.editor.on('beforeChange', function(c, change) {
+      //   var self = this;
+      //   if (self.cancelNextChange) {
+      //     self.skip  = false;
+      //     change.cancel();
+      //   }
+      // }.bind(self));
       self.editor.on('changes', self.handleChanges.bind(self));
       self.editor.on('renderLine', self.handleRenderLine.bind(self));
       self.editor.on('update', self.handleUpdate.bind(self));
@@ -59,10 +75,58 @@ function CMService(dom, state, currentUser, readOnly) {
       self.editor.on('beforeSelectionChange', self.handleSelection.bind(self));
     },
     handleChanges: function (c, change) {
-      var state = this.state;
-      if (c.getValue() !== state.doc.content) {
+      var self = this,
+          state = self.state
+      if (c.getValue() !== state.doc.content && !diff) {
         state.doc = Document.updateOnCMChange(state.doc, c, change);
         Document.emitChanges(state.doc);
+      } else if (diff) {
+        if (!self.skipNextdiff) {
+          var calculatedDiff = self.diffMatchPatch.diff_main(c.getValue(), state.doc.content);
+          self.diffMatchPatch.diff_cleanupEfficiency(calculatedDiff)
+          self.patches = self.diffMatchPatch.patch_make(c.getValue(), calculatedDiff)
+        }
+
+        if (change[0].removed[0] !== '') {
+          self.skipNextdiff = true;
+          self.editor.doc.undo();
+        }
+        self.skipNextdiff = false;
+        self.displayPatches();
+      }
+    },
+    displayPatches: function() {
+      var self = this,
+          lastPatchEndCursor = undefined;
+      for (var p in self.patches) {
+        var patch = self.patches[p],
+            diffs = patch.diffs,
+            start = patch.diffs[0],
+            change = patch.diffs[1],
+            end = patch.diffs[2];
+        var startCursor, changeCursor, endcursor;
+        if (lastPatchEndCursor) {
+          startCursor = self.editor.getSearchCursor(start[1], lastPatchEndCursor.to());
+        } else {
+          startCursor = self.editor.getSearchCursor(start[1]);
+        }
+
+        startCursor.findNext();
+
+        changeCursor = self.editor.getSearchCursor(change[1], startCursor.to())
+        changeCursor.findNext();
+        if (change[0] === 1) {
+          css = 'delete';
+        } else {
+          css = 'add';
+        }
+        self.editor.markText(changeCursor.from(), changeCursor.to(), {className: css})
+
+        endCursor = self.editor.getSearchCursor(end[1], changeCursor.to());
+        endCursor.findNext();
+        // self.editor.markText(endCursor.from(), endCursor.to(), {className: 'add'})
+        lastPatchEndCursor = endCursor;
+        console.log(startCursor, changeCursor, endCursor)
       }
     },
     handleFocus: function (c, change) {
