@@ -3,6 +3,7 @@ var immutable = require('immutable');
 
 module.exports = {
   addDoc,
+  deleteDoc,
   updateDoc,
   changeCurrentDoc,
   openDoc,
@@ -42,6 +43,13 @@ function addDoc(doc) {
   return {
     type: actionTypes.ADD_DOCUMENT,
     document: doc
+  }
+}
+
+function deleteDoc(doc) {
+  return {
+    type: actionTypes.DELETE_DOCUMENT,
+    document: doc,
   }
 }
 

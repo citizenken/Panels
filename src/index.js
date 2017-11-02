@@ -4,6 +4,7 @@ var path = require('path');
 var mainStore = require('./mainStore');
 var actions = require('./state/actions/actions');
 var app = require('./app');
+var windows = require('./windows');
 const electronApp = electron.app;
 
 // adds debug features like hotkeys for triggering dev tools and reload
@@ -11,6 +12,8 @@ require('electron-debug')();
 
 // prevent window being garbage collected
 let mainWindow;
+let windowManager = windows.initWindowManager();
+global.windowManager = windowManager;
 
 function onClosed() {
   // dereference the window
@@ -53,6 +56,9 @@ electronApp.on('activate', () => {
 
 electronApp.on('ready', () => {
   require('./menu');
-  app.initialize(app.loadConfig());
+  app.initialize(app.loadConfig())
+  .then(function() {
+    windowManager.addWindow(windows.createOpenWindow(), 'openFile');
+  });
   // mainWindow = createMainWindow();
 });

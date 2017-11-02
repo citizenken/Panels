@@ -18,7 +18,8 @@ module.exports = {
   emitChanges,
   getRemoteFileDiff,
   setAsCurrentDoc,
-  upateCursorLocation
+  upateCursorLocation,
+  deleteDoc
 }
 
 function Document(id, title, scriptType) {
@@ -87,7 +88,6 @@ function getRemoteFileDiff(local, remote) {
 }
 
 function setAsCurrentDoc(docID, cm) {
-  // debugger
   firebaseService.updateUserCurrentFile(docID);
   firebaseService.getCurrentCollaboratorCursors(docID);
   firebaseService.getCurrentComments(docID);
@@ -106,4 +106,10 @@ function upateCursorLocation(cm, docID) {
       };
   firebaseService.updateUserCursor(cursor);
   stateStore.dispatch(actions.userCursorUpdate(cursor, docID));
+}
+
+function deleteDoc(doc) {
+  var updated = Immutable.set(doc, 'deleted', true);
+  stateStore.dispatch(actions.deleteDoc(updated));
+  firebaseService.writeRemoteFile(updated);
 }

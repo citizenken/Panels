@@ -29,7 +29,7 @@ for (var mo in customModes) {
 function CMService(dom, state, currentUser, readOnly) {
   cmOptions.mode = state.doc.type;
   cmOptions.readOnly = readOnly;
-  console.log(currentUser)
+
   var instance = {
     editor: CodeMirror(dom, cmOptions),
     state: state,
@@ -52,11 +52,24 @@ function CMService(dom, state, currentUser, readOnly) {
     registerEvents: function() {
       var self = this;
       self.editor.on('focus', self.handleFocus.bind(self));
+      self.editor.on('beforeChange', self.handleBeforeChange.bind(self));
       self.editor.on('changes', self.handleChanges.bind(self));
       self.editor.on('renderLine', self.handleRenderLine.bind(self));
       self.editor.on('update', self.handleUpdate.bind(self));
       self.editor.on('cursorActivity', self.handleCursorActivity.bind(self));
       self.editor.on('beforeSelectionChange', self.handleSelection.bind(self));
+    },
+    handleBeforeChange: function(c, change) {
+      var self = this,
+          token = c.getTokenAt(change.from),
+          allTokens = c.getMode().allTokens();
+      if (token.type && change.origin === '+input') {
+        var token = token.type.replace(/.*-/, '');
+        if (!change.text[0].match(allTokens[token].regex)) {
+          change.update(change.from, change.to, change.text[0].toUpperCase());
+        }
+      }
+
     },
     handleChanges: function (c, change) {
       var state = this.state;

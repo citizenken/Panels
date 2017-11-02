@@ -9,12 +9,17 @@ var User = require('../models/user');
 var url = require('url');
 var querystring = require('querystring');
 var queryParams = querystring.parse(url.parse(window.location.href).query);
+var currentWindow = require('electron').remote.getCurrentWindow();
 var root = document.body;
 
 var stateData = rendererStore.getState();
 var unsubscribe = rendererStore.subscribe(function() {
   stateData = rendererStore.getState();
   m.redraw();
+});
+
+currentWindow.on('focus', function() {
+  Document.setAsCurrentDoc(queryParams.docId);
 });
 
 module.exports = Workspace = {
@@ -41,15 +46,23 @@ module.exports = Page = {
         user = attrs.stateData.user
         cmReadOnly = false;
 
+
     if (Object.keys(storeState.documents).indexOf(docId) > -1) {
       doc = Immutable(storeState.documents[docId]);
       state.doc = doc;
       loadDoc = true;
+      state.doc = doc;
     } else {
       doc = new Document.Document(docId, docTitle, 'vanlenteComicbook');
+      state.doc = doc;
+      var newParams = querystring.stringify({docId: doc.id, docTitle: doc.title}),
+          location = window.location;
+      window.location = location.origin + location.pathname + '?' + newParams;
+
       rendererStore.dispatch(actions.addDoc(doc));
+      Document.setAsCurrentDoc(doc.id);
     }
-    state.doc = doc;
+
 
     if (User.checkCollaboratorAccess(doc, user.id) === 'view') {
       cmReadOnly = 'nocursor';
@@ -66,7 +79,7 @@ module.exports = Page = {
   },
   onupdate: function({state, attrs, dom}) {
     if (state.doc) {
-      var stateData = Immutable(attrs.stateData),
+      var stateData = attrs.stateData,
           documents = stateData.documents,
           stateDoc = documents[state.doc.id],
           localDoc = state.doc;
@@ -77,6 +90,10 @@ module.exports = Page = {
           state.CMService.setValue(stateDoc.content);
         }
       }
+    }
+
+    if (currentWindow.getTitle() !== stateDoc.title) {
+      currentWindow.setTitle(stateDoc.title);
     }
 
     if (stateData.cursors[stateDoc.id] && stateData.cursors[stateDoc.id].collabCursors) {

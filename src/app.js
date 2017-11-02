@@ -22,10 +22,10 @@ function loadConfig() {
 
 function initialize(config) {
   mainStore.dispatch(actions.showLoading());
-  onlineService.nodeCheckInternet()
+  return onlineService.nodeCheckInternet()
   .then(function() {
     if (config.allowInternet) {
-      initializeFirebase();
+      return initializeFirebase();
     }
   })
   .catch(function(error) {
